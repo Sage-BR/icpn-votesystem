@@ -54,9 +54,9 @@ if(isset($_POST["edit"])){
 			<div style="float:left; width:130px; height:auto; text-align:center; margin: 10px 0px;">
 				<a href="<?php echo $row->top_url; ?>" target="_blank" title="<?php echo $language_37; ?>"><?php echo $row->top_name; ?><br>
 				<img src="images/buttons/<?php echo $row->top_img; ?>" width="87" height="47" border="0"></a><br>
-				<input type='text' name='buttons[]' <?php echo $style1; ?> value='<?php echo isset($_POST["buttons"][($row->id - 1)]) ? $_POST["buttons"][($row->id - 1)] : isset($row->top_id) && $row->top_id != "sem_id" ? $row->top_id : null; ?>'>
+				<input type='text' name='buttons[]' <?php echo $style1; ?> value='<?php echo isset($_POST["buttons"][($row->id - 1)]) ? $_POST["buttons"][($row->id - 1)] : (isset($row->top_id) && $row->top_id != "sem_id" ? $row->top_id : null); ?>'>
 				<?php if($row->use_token == 1){ ?>
-				<br><input type='text' name='token[]' <?php echo $style1; ?> value='<?php echo isset($_POST["token"][($row->id - 1)]) ? $_POST["token"][($row->id - 1)] : isset($row->top_token) && $row->top_token != "sem_token" ? $row->top_token : null; ?>'>
+				<br><input type='text' name='token[]' <?php echo $style1; ?> value='<?php echo isset($_POST["token"][($row->id - 1)]) ? $_POST["token"][($row->id - 1)] : (isset($row->top_token) && $row->top_token != "sem_token" ? $row->top_token : null); ?>'>
 				<?php }else{ ?>
 				<br><input type='text' name='token[]' <?php echo $style1; ?> class="hidden" value=''>
 				<?php } ?>

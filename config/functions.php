@@ -12,84 +12,89 @@
 $db = strtolower($db_data) == "l2j" ? true : false;
 
 function resposta($msg){
-	echo "<script type=\"text/javascript\">$('.msg').fadeIn('slow').html('".$msg."').delay(3000).fadeOut('slow');</script>";
+	echo "<script type=\"text/javascript\">
+		$('.msg').fadeIn('slow').html(" . json_encode($msg) . ").delay(3000).fadeOut('slow');
+	</script>";
 }
 
-function respostaDelay($msg,$delay){
-	echo "<script type=\"text/javascript\">$('.msg').fadeIn('slow').html('".$msg."').delay(".$delay.").fadeOut('slow');</script>";
+function respostaDelay($msg, $delay){
+	echo "<script type=\"text/javascript\">
+		$('.msg').fadeIn('slow').html(" . json_encode($msg) . ").delay(" . intval($delay) . ").fadeOut('slow');
+	</script>";
 }
 
-function redireciona($pag,$delay=0){
-	echo "<script type=\"text/javascript\">setTimeout(function(){ $('.formulario').fadeIn('slow').load('".$pag."'); }, ".$delay.");</script>";
+function redireciona($pag, $delay = 0){
+	echo "<script type=\"text/javascript\">
+		setTimeout(function(){ $('.formulario').fadeIn('slow').load(" . json_encode($pag) . "); }, " . intval($delay) . ");
+	</script>";
 }
 
-function info_table($tabela,$coluna){
-	global $db;
-	global $conn;
-	$tabela = strtolower($tabela);
-	$coluna = strtolower($coluna);
-	if($db){
-		$stmt = $conn->prepare('SHOW COLUMNS FROM '.$tabela);
-		if($stmt->execute()){
-			if($coluna == "accesslevel"){
-				while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
-					if(preg_match("/^access/i", $row["Field"]))
-						return $row["Field"];
-				}
-			}
-			if($coluna == "charid"){
-				if($tabela == "characters" || $tabela == "items"){
-					while($row = $stmt->fetch(\PDO::FETCH_ASSOC))
-						if ($row["Key"] == "PRI")
-							return $row["Field"];
-				}else{
-					$row = $stmt->fetch(\PDO::FETCH_ASSOC);
-					return $row["Field"];
-				}
-			}
-		}
-	}else{
-		// L2 OFF SCRIPTS
-	}
-	return null;
+function info_table(string $tabela, string $coluna): ?string {
+    global $conn;
+
+    // Validar e sanitizar os parâmetros
+    $tabela = strtolower(trim($tabela));
+    $coluna = strtolower(trim($coluna));
+
+    // Garantir que o nome da tabela seja seguro
+    if (!preg_match('/^[a-z0-9_]+$/', $tabela)) {
+        throw new InvalidArgumentException("Nome de tabela inválido.");
+    }
+
+    try {
+        // Executar o comando SHOW COLUMNS
+        $query = "SHOW COLUMNS FROM `$tabela`";
+        $stmt = $conn->prepare($query);
+
+        if ($stmt->execute()) {
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                if ($coluna === "accesslevel" && preg_match("/^access/i", $row["Field"])) {
+                    return $row["Field"];
+                }
+
+                if ($coluna === "charid") {
+                    if (in_array($tabela, ["characters", "items"]) && $row["Key"] === "PRI") {
+                        return $row["Field"];
+                    } elseif (!in_array($tabela, ["characters", "items"])) {
+                        return $row["Field"];
+                    }
+                }
+            }
+        }
+    } catch (PDOException $e) {
+        // Tratar erros do banco de dados
+        error_log("Erro ao consultar a tabela: " . $e->getMessage());
+    }
+
+    // Caso nenhuma correspondência seja encontrada
+    return null;
 }
+
+
 
 function get_client_ip() {
-    // Prefixo IPv4-mapped IPv6
-    $v4mapped_prefix_hex = '00000000000000000000ffff';
-    $v4mapped_prefix_bin = hex2bin($v4mapped_prefix_hex);
-    
-    $ipaddress = '';
-    
-    // Tentar obter o endereço IP do cliente de várias fontes
-    if (isset($_SERVER['HTTP_CLIENT_IP']))
-        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
-    else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    else if(isset($_SERVER['HTTP_X_FORWARDED']))
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-    else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
-        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
-    else if(isset($_SERVER['HTTP_FORWARDED']))
-        $ipaddress = $_SERVER['HTTP_FORWARDED'];
-    else if(isset($_SERVER['REMOTE_ADDR']))
-        $ipaddress = $_SERVER['REMOTE_ADDR'];
-    else
-        $ipaddress = 'UNKNOWN';
-    
-    // Verificar se o endereço IP é um endereço IPv6
+    $v4mapped_prefix_bin = hex2bin('00000000000000000000ffff');
+    $ipaddress = 'UNKNOWN';
+
+    foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $key) {
+        if (!empty($_SERVER[$key])) {
+            $ipaddress = explode(',', $_SERVER[$key])[0]; // Pega o primeiro IP em caso de lista separada por vírgulas
+            break;
+        }
+    }
+
+    // Verifica se o IP é IPv6 e se é mapeado para IPv4
     if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
         $addr_bin = inet_pton($ipaddress);
-        
-        // Remover o prefixo IPv4-mapped, se presente
-        if (substr($addr_bin, 0, strlen($v4mapped_prefix_bin)) == $v4mapped_prefix_bin) {
-            $addr_bin = substr($addr_bin, strlen($v4mapped_prefix_bin));
+        if (substr($addr_bin, 0, strlen($v4mapped_prefix_bin)) === $v4mapped_prefix_bin) {
+            $addr_bin = substr($addr_bin, strlen($v4mapped_prefix_bin)); // Remove o prefixo IPv4-mapped
         }
-        
-        // Converter de binário para formato de apresentação
         return inet_ntop($addr_bin);
     }
+
+    return $ipaddress;
 }
+
 
 function acessoSimples($url, &$info = null, $get= array() , $post=array(), $timeout = 10) {
 	$ch = curl_init();
@@ -135,14 +140,22 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 		array(16, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 0, 0),
 		array(17, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0)
 	);
-	if(empty($admins))
-		return respostaDelay($language_72,4000);
-	$admins = explode(",", $admins);
-	for($x=0;$x < (count($admins)+1);$x++){
-		$adms .= $admins[$x];
-		if(!empty($admins[$x]))
-			$adms .= ",";
-	}
+if (empty($admins)) {
+    return respostaDelay($language_72, 4000);
+}
+
+$admins = explode(",", $admins);
+$adms = ""; // Inicialize a variável antes de usá-la
+
+for ($x = 0; $x < count($admins); $x++) { 
+    if (!empty($admins[$x])) {
+        $adms .= $admins[$x] . ",";
+    }
+}
+
+// Remova a última vírgula, se necessário
+$adms = rtrim($adms, ",");
+
 	if($db){
 		$default_zero = $conn->prepare("ALTER TABLE accounts ALTER ".info_table("accounts","accesslevel")." SET DEFAULT 0");
 		$default_zero->execute();
@@ -447,90 +460,110 @@ function selectChar($login){
 	return null;
 }
 
-function entregaPremio($login,$charid){
-	global $db;
-	global $conn;
-	global $moeda_voto;
-	global $qtd_moeda_voto;
-	global $deposito_loc;
-	global $language_10;
-	global $language_15;
-	global $language_16;
-	global $language_17;
-	global $language_69;
-	global $db_ip;
-	$charid = preg_replace("/(\D)/i" , "" , $charid);
-	if($db){
-		$col_charid = info_table("characters","charid");
-		$col_objid = info_table("items","charid");
-		$chars = $conn->prepare("SELECT char_name FROM characters WHERE account_name = '".$login."' AND online = '0' AND ".$col_charid." = '".$charid."'");
-		$chars->execute();
-		if($chars->rowCount() == 1){
-			if(empty($moeda_voto) || empty($qtd_moeda_voto)){
-				return resposta($language_69);
-			}else{
-				$loc = $deposito_loc == 0 ? 'WAREHOUSE' : 'INVENTORY';
-				$local = $loc == 'WAREHOUSE' ? 'warehouse.' : 'inventario.';
-				$moeda_voto = explode(',', $moeda_voto);
-				$qtd_moeda_voto = explode(',', $qtd_moeda_voto);
-				for($x=0;$x<(count($moeda_voto)-1);$x++){
-					$busca_item = $conn->prepare("SELECT count FROM items WHERE item_id = '".$moeda_voto[$x]."' AND owner_id = '".$charid."' AND loc = '".$loc."'");
-					$busca_item->execute();
-					if($busca_item->rowCount() == 1){
-						$inserindo_item = $conn->prepare("UPDATE items SET count = (count + '".$qtd_moeda_voto[$x]."') WHERE owner_id = '".$charid."' AND item_id = '".$moeda_voto[$x]."' AND loc = '".$loc."'");
-					}else{
-						$id_maximo = $conn->prepare("SELECT MAX(".$col_objid.") AS max FROM items");
-						$id_maximo->execute();
-						$id_max = $id_maximo->fetch(PDO::FETCH_ASSOC);
-						$nova_id = 1000 + $id_max['max'];
-						$inserindo_item = $conn->prepare("INSERT INTO items (owner_id, ".$col_objid.", item_id, count, enchant_level, loc) VALUES ('".$charid."', '".$nova_id."', '".$moeda_voto[$x]."', '".$qtd_moeda_voto[$x]."', '0', '".$loc."')");
-					}
-					$inserindo_item->execute();
-				}
-				$inserindo_voto = $conn->prepare("INSERT INTO icp_votesystem_votos (login, votos, ip) VALUES ('".$login."', '1', '".get_client_ip()."')");
-				$inserindo_voto->execute();
-				echo "<script type='text/javascript'>SetCookie('dataEntrega');</script>";
-				return respostaDelay($language_15.' '.(count($moeda_voto)-1).' '.$language_16.' '.$local.'.<br>'.$language_17,10000);
-			}
-		}else{
-			return respostaDelay($language_10,6000);
-		}
-	}else{
-		global $db_data;
-		global $db_ip;
-		global $db_user;
-		global $db_pass;
-		global $cached_port;
-		$inserindo_voto = $conn->prepare("INSERT INTO icp_votesystem_votos (login, ip, votos) VALUES ('".$login."', '".get_client_ip()."', '1')");
-		$inserindo_voto->execute();
-		echo "<script type='text/javascript'>SetCookie('dataEntrega');</script>";
-		unset($conn);
-		$db_name = "lin2world";
-		include("connection.php");
-		kick_char($charid);
-		$moeda_voto = explode(',', $moeda_voto);
-		$qtd_moeda_voto = explode(',', $qtd_moeda_voto);
-		$deposito_loc = $deposito_loc == 1 ? 0 : 1;
-		$colcount = $conn->prepare("SELECT * FROM user_item");
-		$colcount->execute();
-		$colcount1 = $colcount->columnCount();
-		$cols1 = 'c';
-		$cols2 = array();
-		for($x=0;$x<($colcount1 - 1);$x++){
-			$cols1 .= 'V';
-			if($x > 5)
-				array_push($cols2, ",0");
-		}
-		for($x=0;$x<(count($moeda_voto)-1);$x++){
-			$buf=pack($cols1,55,$charid,$deposito_loc,$moeda_voto[$x],$qtd_moeda_voto[$x],0,0,...$cols2).tounicode("admin");
-			$cachedsocket=@fsockopen($db_ip,$cached_port,$errno,$errstr,1);
-			fwrite($cachedsocket,pack("s",(strlen($buf)+2)).$buf);
-			fclose($cachedsocket);
-		}
-		return respostaDelay($language_15.' '.(count($moeda_voto)-1).' '.$language_16.' '.$local.'.<br>'.$language_17,10000);
-	}
-	return null;
+function entregaPremio(string $login, int $charid): ?string {
+    global $conn, $moeda_voto, $qtd_moeda_voto, $deposito_loc;
+    global $language_10, $language_15, $language_16, $language_17, $language_69;
+
+    try {
+        // Sanitizar e validar o ID do personagem
+        $charid = filter_var($charid, FILTER_SANITIZE_NUMBER_INT);
+
+        if (empty($charid)) {
+            return resposta("ID do personagem inválido.");
+        }
+
+        // Verificar se o banco está configurado corretamente
+        $col_charid = info_table("characters", "charid");
+        $col_objid = info_table("items", "charid");
+
+        // Verificar personagem no banco
+        $chars = $conn->prepare("
+            SELECT char_name 
+            FROM characters 
+            WHERE account_name = :login AND online = 0 AND $col_charid = :charid
+        ");
+        $chars->execute([':login' => $login, ':charid' => $charid]);
+
+        if ($chars->rowCount() !== 1) {
+            return respostaDelay($language_10, 6000);
+        }
+
+        // Verificar moeda e quantidade configuradas
+        if (empty($moeda_voto) || empty($qtd_moeda_voto)) {
+            return resposta($language_69);
+        }
+
+        // Processar entrega de prêmios
+        $loc = $deposito_loc === 0 ? 'WAREHOUSE' : 'INVENTORY';
+        $moeda_voto = explode(',', $moeda_voto);
+        $qtd_moeda_voto = explode(',', $qtd_moeda_voto);
+
+        $conn->beginTransaction();
+
+        for ($x = 0; $x < count($moeda_voto); $x++) {
+            $item_id = $moeda_voto[$x];
+            $item_count = $qtd_moeda_voto[$x];
+
+            // Verificar se o item já existe
+            $busca_item = $conn->prepare("
+                SELECT count 
+                FROM items 
+                WHERE item_id = :item_id AND owner_id = :charid AND loc = :loc
+            ");
+            $busca_item->execute([':item_id' => $item_id, ':charid' => $charid, ':loc' => $loc]);
+
+            if ($busca_item->rowCount() === 1) {
+                // Atualizar item existente
+                $inserindo_item = $conn->prepare("
+                    UPDATE items 
+                    SET count = count + :item_count 
+                    WHERE owner_id = :charid AND item_id = :item_id AND loc = :loc
+                ");
+            } else {
+                // Inserir novo item
+                $id_maximo = $conn->query("SELECT MAX($col_objid) AS max FROM items")->fetch(PDO::FETCH_ASSOC);
+                $nova_id = $id_maximo['max'] + 1;
+
+                $inserindo_item = $conn->prepare("
+                    INSERT INTO items (owner_id, $col_objid, item_id, count, enchant_level, loc) 
+                    VALUES (:charid, :nova_id, :item_id, :item_count, 0, :loc)
+                ");
+                $inserindo_item->bindParam(':nova_id', $nova_id, PDO::PARAM_INT);
+            }
+
+            // Executar inserção ou atualização
+            $inserindo_item->execute([
+                ':charid' => $charid,
+                ':item_id' => $item_id,
+                ':item_count' => $item_count,
+                ':loc' => $loc
+            ]);
+        }
+
+        // Registrar o voto no sistema
+        $inserindo_voto = $conn->prepare("
+            INSERT INTO icp_votesystem_votos (login, votos, ip) 
+            VALUES (:login, 1, :ip)
+        ");
+        $inserindo_voto->execute([':login' => $login, ':ip' => get_client_ip()]);
+
+        $conn->commit();
+
+        echo "<script type='text/javascript'>SetCookie('dataEntrega');</script>";
+
+        return respostaDelay(
+            $language_15 . ' ' . count($moeda_voto) . ' ' . $language_16 . ' ' . strtolower($loc) . '.<br>' . $language_17,
+            10000
+        );
+
+    } catch (Exception $e) {
+        // Reverter transação em caso de erro
+        $conn->rollBack();
+        error_log("Erro ao entregar prêmio: " . $e->getMessage());
+        return resposta("Ocorreu um erro ao processar a entrega. Por favor, tente novamente.");
+    }
 }
+
 
 function kick_char($char_id){
 	global $db_data;

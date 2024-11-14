@@ -14,13 +14,13 @@ if (!isset($_SESSION)){ session_start(); }
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
-		<title>VoteSystem ICPNETWORKS 2.7</title>
+		<title>VoteSystem ICPNETWORKS 2.7 BY 4TEAM</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<link href='css/default.css' rel='stylesheet' type='text/css' />
 		<link href='images/favicon.png' rel='shortcut icon'/>
 		<link href='images/favicon.png' rel='icon' type='image/png'/>
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-		<script type="text/javascript" src="js/icpnetworks.js"></script>
+		<script type="text/javascript" src="js/icpnetworks.js?1"></script>
 	</head>
 	<body>
 		<div class="corpo-topo">
@@ -53,7 +53,7 @@ if (!isset($_SESSION)){ session_start(); }
 				}(document, 'script', 'facebook-jssdk'));
 			</script>
 			<div class="fb-like-box-back">
-				<div class="fb-like-box" data-href="https://www.facebook.com/pages/ICP-Networks-Design-Desenvolvimentos-web/250350185072159" data-width="578" data-height="85" data-colorscheme="dark" data-show-faces="false" data-border-color="#666" data-stream="true" data-header="false"></div>
+				<div class="fb-like-box" data-href="https://www.facebook.com/4TeamBrasil" data-width="578" data-height="85" data-colorscheme="dark" data-show-faces="false" data-border-color="#666" data-stream="true" data-header="false"></div>
 			</div>
 			<div id="creditos">
 				<br />
