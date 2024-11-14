@@ -461,108 +461,89 @@ function selectChar($login){
 	return null;
 }
 
-function entregaPremio(string $login, int $charid): ?string {
-    global $conn, $moeda_voto, $qtd_moeda_voto, $deposito_loc;
-    global $language_10, $language_15, $language_16, $language_17, $language_69;
-
-    try {
-        // Sanitizar e validar o ID do personagem
-        $charid = filter_var($charid, FILTER_SANITIZE_NUMBER_INT);
-
-        if (empty($charid)) {
-            return resposta("ID do personagem inválido.");
-        }
-
-        // Verificar se o banco está configurado corretamente
-        $col_charid = info_table("characters", "charid");
-        $col_objid = info_table("items", "charid");
-
-        // Verificar personagem no banco
-        $chars = $conn->prepare("
-            SELECT char_name 
-            FROM characters 
-            WHERE account_name = :login AND online = 0 AND $col_charid = :charid
-        ");
-        $chars->execute([':login' => $login, ':charid' => $charid]);
-
-        if ($chars->rowCount() !== 1) {
-            return respostaDelay($language_10, 6000);
-        }
-
-        // Verificar moeda e quantidade configuradas
-        if (empty($moeda_voto) || empty($qtd_moeda_voto)) {
-            return resposta($language_69);
-        }
-
-        // Processar entrega de prêmios
-        $loc = $deposito_loc === 0 ? 'WAREHOUSE' : 'INVENTORY';
-        $moeda_voto = explode(',', $moeda_voto);
-        $qtd_moeda_voto = explode(',', $qtd_moeda_voto);
-
-        $conn->beginTransaction();
-
-        for ($x = 0; $x < count($moeda_voto); $x++) {
-            $item_id = $moeda_voto[$x];
-            $item_count = $qtd_moeda_voto[$x];
-
-            // Verificar se o item já existe
-            $busca_item = $conn->prepare("
-                SELECT count 
-                FROM items 
-                WHERE item_id = :item_id AND owner_id = :charid AND loc = :loc
-            ");
-            $busca_item->execute([':item_id' => $item_id, ':charid' => $charid, ':loc' => $loc]);
-
-            if ($busca_item->rowCount() === 1) {
-                // Atualizar item existente
-                $inserindo_item = $conn->prepare("
-                    UPDATE items 
-                    SET count = count + :item_count 
-                    WHERE owner_id = :charid AND item_id = :item_id AND loc = :loc
-                ");
-            } else {
-                // Inserir novo item
-                $id_maximo = $conn->query("SELECT MAX($col_objid) AS max FROM items")->fetch(PDO::FETCH_ASSOC);
-                $nova_id = $id_maximo['max'] + 1;
-
-                $inserindo_item = $conn->prepare("
-                    INSERT INTO items (owner_id, $col_objid, item_id, count, enchant_level, loc) 
-                    VALUES (:charid, :nova_id, :item_id, :item_count, 0, :loc)
-                ");
-                $inserindo_item->bindParam(':nova_id', $nova_id, PDO::PARAM_INT);
-            }
-
-            // Executar inserção ou atualização
-            $inserindo_item->execute([
-                ':charid' => $charid,
-                ':item_id' => $item_id,
-                ':item_count' => $item_count,
-                ':loc' => $loc
-            ]);
-        }
-
-        // Registrar o voto no sistema
-        $inserindo_voto = $conn->prepare("
-            INSERT INTO icp_votesystem_votos (login, votos, ip) 
-            VALUES (:login, 1, :ip)
-        ");
-        $inserindo_voto->execute([':login' => $login, ':ip' => get_client_ip()]);
-
-        $conn->commit();
-
-        echo "<script type='text/javascript'>SetCookie('dataEntrega');</script>";
-
-        return respostaDelay(
-            $language_15 . ' ' . count($moeda_voto) . ' ' . $language_16 . ' ' . strtolower($loc) . '.<br>' . $language_17,
-            10000
-        );
-
-    } catch (Exception $e) {
-        // Reverter transação em caso de erro
-        $conn->rollBack();
-        error_log("Erro ao entregar prêmio: " . $e->getMessage());
-        return resposta("Ocorreu um erro ao processar a entrega. Por favor, tente novamente.");
-    }
+function entregaPremio($login,$charid){
+	global $db;
+	global $conn;
+	global $moeda_voto;
+	global $qtd_moeda_voto;
+	global $deposito_loc;
+	global $language_10;
+	global $language_15;
+	global $language_16;
+	global $language_17;
+	global $language_69;
+	global $db_ip;
+	$charid = preg_replace("/(\D)/i" , "" , $charid);
+	if($db){
+		$col_charid = info_table("characters","charid");
+		$col_objid = info_table("items","charid");
+		$chars = $conn->prepare("SELECT char_name FROM characters WHERE account_name = '".$login."' AND online = '0' AND ".$col_charid." = '".$charid."'");
+		$chars->execute();
+		if($chars->rowCount() == 1){
+			if(empty($moeda_voto) || empty($qtd_moeda_voto)){
+				return resposta($language_69);
+			}else{
+				$loc = $deposito_loc == 0 ? 'WAREHOUSE' : 'INVENTORY';
+				$local = $loc == 'WAREHOUSE' ? 'warehouse.' : 'inventario.';
+				$moeda_voto = explode(',', $moeda_voto);
+				$qtd_moeda_voto = explode(',', $qtd_moeda_voto);
+				for($x=0;$x<(count($moeda_voto)-1);$x++){
+					$busca_item = $conn->prepare("SELECT count FROM items WHERE item_id = '".$moeda_voto[$x]."' AND owner_id = '".$charid."' AND loc = '".$loc."'");
+					$busca_item->execute();
+					if($busca_item->rowCount() == 1){
+						$inserindo_item = $conn->prepare("UPDATE items SET count = (count + '".$qtd_moeda_voto[$x]."') WHERE owner_id = '".$charid."' AND item_id = '".$moeda_voto[$x]."' AND loc = '".$loc."'");
+					}else{
+						$id_maximo = $conn->prepare("SELECT MAX(".$col_objid.") AS max FROM items");
+						$id_maximo->execute();
+						$id_max = $id_maximo->fetch(PDO::FETCH_ASSOC);
+						$nova_id = 1000 + $id_max['max'];
+						$inserindo_item = $conn->prepare("INSERT INTO items (owner_id, ".$col_objid.", item_id, count, enchant_level, loc) VALUES ('".$charid."', '".$nova_id."', '".$moeda_voto[$x]."', '".$qtd_moeda_voto[$x]."', '0', '".$loc."')");
+					}
+					$inserindo_item->execute();
+				}
+				$inserindo_voto = $conn->prepare("INSERT INTO icp_votesystem_votos (login, votos, ip) VALUES ('".$login."', '1', '".get_client_ip()."')");
+				$inserindo_voto->execute();
+				echo "<script type='text/javascript'>SetCookie('dataEntrega');</script>";
+				return respostaDelay($language_15.' '.(count($moeda_voto)-1).' '.$language_16.' '.$local.'.<br>'.$language_17,10000);
+			}
+		}else{
+			return respostaDelay($language_10,6000);
+		}
+	}else{
+		global $db_data;
+		global $db_ip;
+		global $db_user;
+		global $db_pass;
+		global $cached_port;
+		$inserindo_voto = $conn->prepare("INSERT INTO icp_votesystem_votos (login, ip, votos) VALUES ('".$login."', '".get_client_ip()."', '1')");
+		$inserindo_voto->execute();
+		echo "<script type='text/javascript'>SetCookie('dataEntrega');</script>";
+		unset($conn);
+		$db_name = "lin2world";
+		include("connection.php");
+		kick_char($charid);
+		$moeda_voto = explode(',', $moeda_voto);
+		$qtd_moeda_voto = explode(',', $qtd_moeda_voto);
+		$deposito_loc = $deposito_loc == 1 ? 0 : 1;
+		$colcount = $conn->prepare("SELECT * FROM user_item");
+		$colcount->execute();
+		$colcount1 = $colcount->columnCount();
+		$cols1 = 'c';
+		$cols2 = array();
+		for($x=0;$x<($colcount1 - 1);$x++){
+			$cols1 .= 'V';
+			if($x > 5)
+				array_push($cols2, ",0");
+		}
+		for($x=0;$x<(count($moeda_voto)-1);$x++){
+			$buf=pack($cols1,55,$charid,$deposito_loc,$moeda_voto[$x],$qtd_moeda_voto[$x],0,0,...$cols2).tounicode("admin");
+			$cachedsocket=@fsockopen($db_ip,$cached_port,$errno,$errstr,1);
+			fwrite($cachedsocket,pack("s",(strlen($buf)+2)).$buf);
+			fclose($cachedsocket);
+		}
+		return respostaDelay($language_15.' '.(count($moeda_voto)-1).' '.$language_16.' '.$local.'.<br>'.$language_17,10000);
+	}
+	return null;
 }
 
 
