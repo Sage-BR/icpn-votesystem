@@ -123,22 +123,23 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 	$adms = null;
 	$insert_tops = array(
 		array(1, 'L2jBrasil', 'https://top.l2jbrasil.com', 'l2jbrasil.png', 'l2jbrasil.php', 'sem_id', 'sem_token', 0, 0),
-		array(2, 'Private Server', 'https://www.private-server.ws', 'private_server_ws.jpg', 'privateserverws.php', 'sem_id', 'sem_token', 0, 0),
-		array(3, 'Gaming Top 100', 'http://www.gamingtop100.net', 'gamingtop100.gif', 'gamingtop100.php', 'sem_id', 'sem_token', 0, 0),
-		array(4, 'Games Top 200', 'https://www.gamestop200.com', 'gamestop200.jpg', 'gamestop200.php', 'sem_id', 'sem_token', 0, 0),
-		array(5, 'GTOP100', 'http://www.gtop100.com', 'gtop100.jpg', 'gtop100.php', 'sem_id', 'sem_token', 0, 0),
-		array(6, 'L2 TOP ZONE', 'https://www.l2topzone.com', 'l2topzone.png', 'l2topzone.php', 'sem_id', 'sem_token', 1, 0),
-		array(7, 'HOP ZONE', 'https://www.hopzone.net', 'hopzone.gif', 'hopzone.php', 'sem_id', 'sem_token', 1, 0),
-		array(8, 'Xtreme Top 300', 'https://xtremetop300.com', 'xtremetop300.jpg', 'xtremetop300.php', 'sem_id', 'sem_token', 1, 0),
-		array(9, 'TOPGS200', 'http://www.topgs200.com', 'topgs200.jpg', 'topgs200.php', 'sem_id', 'sem_token', 0, 0),
-		array(10, 'Top 100 Arena', 'http://www.top100arena.com', 'top100arena.jpg', 'top100arena.php', 'sem_id', 'sem_token', 0, 0),
-		array(11, 'L2 Network', 'http://www.l2network.eu', 'l2network.png', 'l2network.php', 'sem_id', 'sem_token', 0, 0),
-		array(12, 'L2Top.co', 'https://l2top.co', 'l2top.co.png', 'l2top.co.php', 'sem_id', 'sem_token', 0, 0),
-		array(13, 'TopG', 'https://topg.org', 'topg.gif', 'topg.php', 'sem_id', 'sem_token', 0, 0),
-		array(14, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
-		array(15, 'L2 Servers', 'https://www.l2servers.com', 'l2servers.png', 'l2servers.php', 'sem_id', 'sem_token', 0, 0),
-		array(16, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 0, 0),
-		array(17, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0)
+		array(2, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0),
+		array(3, 'Private Server', 'https://www.private-server.ws', 'private_server_ws.jpg', 'privateserverws.php', 'sem_id', 'sem_token', 0, 0),
+		array(4, 'Gaming Top 100', 'http://www.gamingtop100.net', 'gamingtop100.gif', 'gamingtop100.php', 'sem_id', 'sem_token', 0, 0),
+		array(5, 'Games Top 200', 'https://www.gamestop200.com', 'gamestop200.jpg', 'gamestop200.php', 'sem_id', 'sem_token', 0, 0),
+		array(6, 'Xtreme Top 300', 'https://xtremetop300.com', 'xtremetop300.jpg', 'xtremetop300.php', 'sem_id', 'sem_token', 1, 0),
+		array(7, 'L2 TOP ZONE', 'https://www.l2topzone.com', 'l2topzone.png', 'l2topzone.php', 'sem_id', 'sem_token', 1, 0),
+		array(8, 'HOP ZONE', 'https://www.hopzone.net', 'hopzone.gif', 'hopzone.php', 'sem_id', 'sem_token', 1, 0),
+		array(9, 'GTOP100', 'http://www.gtop100.com', 'gtop100.jpg', 'gtop100.php', 'sem_id', 'sem_token', 0, 0),
+		array(10, 'TOPGS200', 'http://www.topgs200.com', 'topgs200.jpg', 'topgs200.php', 'sem_id', 'sem_token', 0, 0),
+		array(11, 'Top 100 Arena', 'http://www.top100arena.com', 'top100arena.jpg', 'top100arena.php', 'sem_id', 'sem_token', 0, 0),
+		array(12, 'L2 Network', 'http://www.l2network.eu', 'l2network.png', 'l2network.php', 'sem_id', 'sem_token', 0, 0),
+		array(13, 'L2Top.co', 'https://l2top.co', 'l2top.co.png', 'l2top.co.php', 'sem_id', 'sem_token', 0, 0),
+		array(14, 'TopG', 'https://topg.org', 'topg.gif', 'topg.php', 'sem_id', 'sem_token', 0, 0),
+		array(15, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
+		array(16, 'L2 Servers', 'https://www.l2servers.com', 'l2servers.png', 'l2servers.php', 'sem_id', 'sem_token', 0, 0),
+		array(17, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 0, 0)
+		
 	);
 if (empty($admins)) {
     return respostaDelay($language_72, 4000);

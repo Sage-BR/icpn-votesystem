@@ -14,7 +14,7 @@ if (!isset($_SESSION)){ session_start(); }
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
-		<title>VoteSystem ICPNETWORKS 2.7 BY 4TEAM</title>
+		<title>VoteSystem ICPNETWORKS 2.8 BY 4TEAM</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<link href='css/default.css' rel='stylesheet' type='text/css' />
 		<link href='images/favicon.png' rel='shortcut icon'/>
