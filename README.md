@@ -1,6 +1,6 @@
 # VoteSystem - ICPNETWORKS
 
-Tópico oficial na L2jBrasil: https://www.l2jbrasil.com/t/138830
+Tópico oficial na L2jBrasil: https://www.l2jbrasil.com/topic/147136-votesystem-icpnetworks-28-by-sagebr/
 
 ## Como funciona este VoteSystem?
 
@@ -12,15 +12,8 @@ Quando o Player vota no servidor, o site de TOP "envia uma mensagem" dizendo ao 
 
 Este VoteSystem foi desenvolvido com a finalidade de ajudar os SERVIDOSRES de L2, então se o Player dar reboot no modem, vai muda o IP dele, mudando IP o voto é válido nos sites de TOP, se o voto é válido o player merece o item. E isso não é um bug. Pois na verdade quem ganha com isso é o próprio servidor, se você conseguir 20 players que sejam aqueles Players chatos que dão reboot no modem umas 50x por dia, você já tem 1000 votos válidos em 1 dia. A intenção deste VoteSystem é ganhar votos, é fazer com que os players sejam "obrigados" a votar se quiserem receber o premio, pois nos outros VoteSystem que já existem é fácil você burlar os votos, muitos player clicam no botão de voto e não votam no servidor, simplesmente fecham a janela e esperam o próximo link ser liberado para fazer a mesma coisa até receber a premiação. Cabe a cada ADM criar suas dificuldades para o player, você pode por exemplo colocar uma quantidade de itens necessárias maior para a troca dos itens de votação por itens premium do seu servidor.
 
-## Top Sites Suportados:
-
-- http://top.l2jbrasil.com
-- http://www.toplineage2.com
-- http://www.topservers200.com
-- http://www.gamesites200.com
-- http://www.topmmo.com.br
-- http://www.top200games.com.br
-- https://top.4teambr.com/
+## Modded
+- SageBR | 4TeamBR
 
 
 ### VoteSystem developed by:        
@@ -28,6 +21,3 @@ Este VoteSystem foi desenvolvido com a finalidade de ajudar os SERVIDOSRES de L2
 
 ###  And styled by:             
 - Hugo Felipe (ICPNetworks)
-
-Projeto e divulgação https://www.icpfree.com.br     
-Repositório mantido pela https://l2jbrasil.com
