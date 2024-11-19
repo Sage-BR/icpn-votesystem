@@ -85,33 +85,19 @@ if($_SESSION["UsuarioNivel"] == 1){ ?>
 				}
 			}
 		}
-if (isset($_POST["trocar"])) {
-    if (strpos($_SERVER['HTTP_REFERER'], $_SERVER['SERVER_NAME'])) {
-        if ($voto == $tops->rowCount()) {
-            if (
-                checkVoteForIP(get_client_ip()) &&
-                checkVoteForLogin($_SESSION["UsuarioLogin"]) &&
-                !checkVoteForCookies()
-            ) {
-                if (!isset($_POST["char"]) || !is_numeric($_POST["char"])) {
-                    echo resposta("Personagem inválido.");
-                    return;
-                }
-
-                // Chamar entrega do prêmio com todos os parâmetros necessários
-                echo entregaPremio(
-                    $_SESSION["UsuarioLogin"],
-                    $_POST["char"]
-                );
-            } else {
-                echo resposta($language_13 . "<br>" . $language_14);
-            }
-        } else {
-            echo respostaDelay($language_11 . "<br>" . $language_12, 8000);
-        }
-    }
-}
-
+		if(isset($_POST["trocar"])){
+			if(strpos($_SERVER['HTTP_REFERER'],$_SERVER['SERVER_NAME'])){
+				if($voto == $tops->rowCount()){
+					if(checkVoteForIP(get_client_ip()) && checkVoteForLogin($_SESSION["UsuarioLogin"]) && !checkVoteForCookies()){
+						echo entregaPremio($_SESSION["UsuarioLogin"],$_POST["char"]);
+					}else{
+						echo resposta($language_13."<br>".$language_14);
+					}
+				}else{
+					echo respostaDelay($language_11."<br>".$language_12,8000);
+				}
+			}
+		}
 		if(!isset($_POST["verificar"])){
 			echo"<div style='width:100%; float:left;'><form action='javascript:trocar();' method='post'><button style='margin-top: 20px; margin-bottom: 20px;' class='button secondary'>".$language_18."</button></form></div>";
 		}

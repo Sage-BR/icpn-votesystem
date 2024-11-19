@@ -139,7 +139,6 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 		array(15, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
 		array(16, 'L2 Servers', 'https://www.l2servers.com', 'l2servers.png', 'l2servers.php', 'sem_id', 'sem_token', 0, 0),
 		array(17, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 0, 0)
-		
 	);
 if (empty($admins)) {
     return respostaDelay($language_72, 4000);
@@ -436,7 +435,6 @@ function checkVoteForCookies(){
 	return isset($_COOKIE["dataEntrega"]);
 }
 
-
 function selectChar($login){
 	global $db;
 	if($db){
@@ -549,7 +547,6 @@ function entregaPremio($login,$charid){
 	}
 	return null;
 }
-
 
 function kick_char($char_id){
 	global $db_data;

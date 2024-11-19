@@ -73,7 +73,7 @@ if (!isset($_SESSION)){ session_start(); }
 				<table id="creditos2" width="700" border="0" align="center" cellpadding="10" cellspacing="0">
 					<tr>
 						<td width="525">
-							<strong><?php echo $language_64; ?></strong> <?php echo $language_65; ?> <a href="http://icpfree.com.br" title="ICP Networks - Designer Gráfico e Desenvolvimentos web" target="new" id='1'>ICP Networks</a><br>
+							<strong><?php echo $language_64; ?></strong><?php echo $language_65; ?> <a href="http://icpfree.com.br" title="ICP Networks - Designer Gráfico e Desenvolvimentos web" target="new" id='1'>ICP Networks</a><br>
 						</td>
 					</tr>
 				</table>

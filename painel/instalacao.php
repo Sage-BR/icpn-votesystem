@@ -9,7 +9,6 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
-include_once("fix_mysql.inc.php");
 // Habilitar exibição de erros
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
