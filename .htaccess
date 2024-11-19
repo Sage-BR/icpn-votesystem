@@ -1,5 +1,5 @@
 # Desativar exibição de erros no navegador
-php_value display_errors Off
+php_value display_errors On
 
 # Configurar entrada automática de mbstring
 php_value mbstring.http_input auto

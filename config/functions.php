@@ -192,7 +192,7 @@ $adms = rtrim($adms, ",");
 		$create_votos = $conn->prepare("CREATE TABLE `icp_votesystem_votos` (
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`login` varchar(45) NOT NULL DEFAULT 'sem_login',
-			`ip` varchar(20) NOT NULL DEFAULT 'sem_ip',
+			`ip` varchar(45) NOT NULL DEFAULT 'sem_ip',
 			`data_entrega` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			`votos` int(11) NOT NULL DEFAULT '0',
 			PRIMARY KEY (`id`)
@@ -377,61 +377,65 @@ function saveConfigs($admins,$buttons,$token,$id,$coins2,$qtd_coins2,$deposito,$
 function pega_cookie($cookie){
 	$dia_gs = substr($cookie, 5, 2);
 	$ano_gs = substr($cookie, 12, 4);
-	$mes_gs = substr($cookie, 8, 3);
+	$mes_abbr = substr($cookie, 8, 3);
 	$hor_gs = substr($cookie, 17, 2);
 	$min_gs = substr($cookie, 20, 2);
 	$seg_gs = substr($cookie, 23, 2);
-	if($mes_gs == 'Jan'){ $mes_gs = '01'; }elseif($mes_gs == 'Feb'){ $mes_gs = '02'; }elseif($mes_gs == 'Mar'){ $mes_gs = '03'; }elseif($mes_gs == 'Apr'){ $mes_gs = '04'; }elseif($mes_gs == 'May'){ $mes_gs = '05'; }elseif($mes_gs == 'Jun'){ $mes_gs = '06'; }elseif($mes_gs == 'Jul'){ $mes_gs = '07'; }elseif($mes_gs == 'Aug'){ $mes_gs = '08'; }elseif($mes_gs == 'Sep'){ $mes_gs = '09'; }elseif($mes_gs == 'Oct'){ $mes_gs = '10'; }elseif($mes_gs == 'Nov'){ $mes_gs = '11'; }elseif($mes_gs == 'Dec'){ $mes_gs = '12'; }
-	$click_cookie = $ano_gs."-".$mes_gs."-".$dia_gs." ".$hor_gs.":".$min_gs.":".$seg_gs;
-	return date("Y-m-d H:i:s",strtotime($click_cookie." + 12 hours"));
+
+	// Map month abbreviations to their numeric equivalents
+	$mes_map = [
+		'Jan' => '01', 'Feb' => '02', 'Mar' => '03', 'Apr' => '04',
+		'May' => '05', 'Jun' => '06', 'Jul' => '07', 'Aug' => '08',
+		'Sep' => '09', 'Oct' => '10', 'Nov' => '11', 'Dec' => '12'
+	];
+	$mes_gs = $mes_map[$mes_abbr] ?? '01'; // Default to January if month not found
+
+	$click_cookie = "$ano_gs-$mes_gs-$dia_gs $hor_gs:$min_gs:$seg_gs";
+	return date("Y-m-d H:i:s", strtotime($click_cookie . " + 12 hours"));
 }
 
 function checkVoteForIP($ip){
-	global $db;
-	global $conn;
-	if($db){
-		$records = $conn->prepare("SELECT data_entrega FROM icp_votesystem_votos WHERE ip = '".$ip."' ORDER BY data_entrega DESC LIMIT 1");
-	}else{
-		$records = $conn->prepare("SELECT TOP 1 data_entrega FROM icp_votesystem_votos WHERE ip = '".$ip."' ORDER BY data_entrega DESC");
-	}
+	global $conn, $db;
+
+	$query = $db 
+		? "SELECT data_entrega FROM icp_votesystem_votos WHERE ip = :ip ORDER BY data_entrega DESC LIMIT 1"
+		: "SELECT TOP 1 data_entrega FROM icp_votesystem_votos WHERE ip = :ip ORDER BY data_entrega DESC";
+	
+	$records = $conn->prepare($query);
+	$records->bindParam(':ip', $ip, PDO::PARAM_STR);
 	$records->execute();
 	$results = $records->fetch(PDO::FETCH_ASSOC);
-	if($results){
-		if(date("Y-m-d H:i:s") > date('Y-m-d H:i:s', strtotime($results["data_entrega"]." + 12 hours"))){
-			return true;
-		}else{
-			return false;
-		}
+
+	if ($results) {
+		$last_vote_time = strtotime($results["data_entrega"] . " + 12 hours");
+		return time() > $last_vote_time;
 	}
 	return true;
 }
 
 function checkVoteForLogin($login){
-	global $db;
-	global $conn;
-	if($db){
-		$records = $conn->prepare("SELECT data_entrega FROM icp_votesystem_votos WHERE login = '".$login."' ORDER BY data_entrega DESC LIMIT 1");
-	}else{
-		$records = $conn->prepare("SELECT TOP 1 data_entrega FROM icp_votesystem_votos WHERE login = '".$login."' ORDER BY data_entrega DESC");
-	}
+	global $conn, $db;
+
+	$query = $db 
+		? "SELECT data_entrega FROM icp_votesystem_votos WHERE login = :login ORDER BY data_entrega DESC LIMIT 1"
+		: "SELECT TOP 1 data_entrega FROM icp_votesystem_votos WHERE login = :login ORDER BY data_entrega DESC";
+	
+	$records = $conn->prepare($query);
+	$records->bindParam(':login', $login, PDO::PARAM_STR);
 	$records->execute();
 	$results = $records->fetch(PDO::FETCH_ASSOC);
-	if($results){
-		if(date("Y-m-d H:i:s") > date('Y-m-d H:i:s', strtotime($results["data_entrega"]." + 12 hours"))){
-			return true;
-		}else{
-			return false;
-		}
+
+	if ($results) {
+		$last_vote_time = strtotime($results["data_entrega"] . " + 12 hours");
+		return time() > $last_vote_time;
 	}
 	return true;
 }
 
 function checkVoteForCookies(){
-	if(isset($_COOKIE["dataEntrega"])){
-		return true;
-	}
-	return false;
+	return isset($_COOKIE["dataEntrega"]);
 }
+
 
 function selectChar($login){
 	global $db;
