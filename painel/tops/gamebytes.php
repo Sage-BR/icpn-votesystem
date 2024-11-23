@@ -10,7 +10,7 @@
 //=======================================================================\\
 
 // Faz a requisição para a API.
-$url = "https://www.gamebytes.net/api.php?ip=" . get_client_ip() . "&username=" . $row->top_id;
+$url = "https://www.gamebytes.net/api.php?ip=".get_client_ip()."&username=".$row->top_id;
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $pagina = curl_exec($ch);
