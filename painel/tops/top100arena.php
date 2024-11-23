@@ -9,43 +9,78 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
-if(@fsockopen(str_replace("https://","",str_replace("http://","",$row->top_url)), 80 , $errno , $errstr , 30)){
-	@header('Content-Type: text/html; charset=utf-8');
-	$pagina = @file_get_contents("http://www.top100arena.com/check_ip.asp?id=".$row->top_id."&ip=".get_client_ip());
-	if($pagina[0] == 1 && !isset($_COOKIE["top100arena"])){
-		?>
-		<script language="javascript">
-			SetCookie('top100arena');
-		</script>
-		<?php
-	}
-	if(isset($_COOKIE["top100arena"])){
-		$data_modificada = pega_cookie($_COOKIE["top100arena"]);
-	}else{
-		$data_modificada = '0000-00-00 00:00:00';
-	}
-	if(strtotime($data_modificada) >= strtotime(date('Y-m-d H:i:s'))){
-		$data_voto = explode("-", substr(str_replace(" ", "", $data_modificada), 0, 10));
-		$hora_voto = explode(":", substr(str_replace(" ", "", $data_modificada), 10, 19));
-		$tops_voted = array_replace($tops_voted, array($i => array(1, $data_modificada)));
-		?>
-		<script language="javascript">
-			atualizaContador(<?php echo $row->id; ?>,<?php echo $data_voto[0]; ?>,<?php echo $data_voto[1]; ?>,<?php echo $data_voto[2]; ?>,<?php echo $hora_voto[0]; ?>,<?php echo $hora_voto[1]; ?>,<?php echo $hora_voto[2]; ?>);
-		</script>
-		<div style='background:url(images/buttons/<?php echo $row->top_img; ?>); background-repeat: no-repeat; background-size: 87px 47px; width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'>
-			<div style='width:89px; *width:87px; _width:87px; height:49px; *height:47px; _height:47px; font-size:10px; font-family:Arial; background: rgba(0,0,0,0.7); text-shadow:1px 1px #000; font-weight:bold;'>
-				<?php echo $language_05; ?><br><font size='3'><span id='contador<?php echo $row->id; ?>'></span></font><br><?php echo $language_06; ?>
-			</div>
-		</div>
-		<?php
-	}else{
-		?>
-		<div style='width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'>
-			<a href='http://www.top100arena.com/in.asp?id=<?php echo $row->top_id; ?>' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='Lineage 2 Private Servers' border='0' width='87' height='47' onClick="javascript:SetCookie('top100arena');"></a>
-		</div>
-		<?php
-	}
-}else{
-	$tops_voted = array_replace($tops_voted, array($i => array(1, '0000-00-00 00:00:00')));
+
+// Faz a requisição para a API.
+$url = "https://www.top100arena.com/check_ip/" . $row->top_id . "?ip=" . get_client_ip();
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$pagina = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+// Inicializa variáveis padrão.
+$can_vote = false;
+$data_modificada = '0000-00-00 00:00:00';
+$tops_voted = array_replace($tops_voted ?? [], [$i => [1, $data_modificada]]);
+
+if ($http_code === 200) {
+    $json = json_decode($pagina, true);
+
+    if ($json !== null && isset($json['voted'])) {
+        $voted = $json['voted'];
+        
+        if ($voted) {
+            $hoursToVoteAgain = 24; // Tempo em horas até poder votar de novo
+            $data_modificada = date("Y-m-d H:i:s", strtotime("+{$hoursToVoteAgain} hours"));
+        } else {
+            $can_vote = true;
+        }
+    } else {
+        $can_vote = true; // Caso a API não retorne dados válidos.
+    }
+} else {
+    $can_vote = true; // Caso ocorra erro na requisição.
+}
+
+$dataAtual = new DateTime();
+$dataModificada = new DateTime($data_modificada);
+
+if ($can_vote || $dataModificada <= $dataAtual) {
+    // Exibe botão de votação.
+    ?>
+    <div style="width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;">
+        <a href="https://www.top100arena.com/listing/<?= htmlspecialchars($row->top_id); ?>/vote" target="_blank">
+            <img src="images/buttons/<?= htmlspecialchars($row->top_img); ?>" 
+                 title="Lineage 2 Private Servers" 
+                 border="0" width="87" height="47">
+        </a>
+    </div>
+    <?php
+} else {
+    // Exibe contador.
+    $data_voto = explode("-", substr(str_replace(" ", "", $data_modificada), 0, 10));
+    $hora_voto = explode(":", substr(str_replace(" ", "", $data_modificada), 10, 19));
+
+    $tops_voted = array_replace($tops_voted, [$i => [1, $data_modificada]]);
+    ?>
+    <script language="javascript">
+        atualizaContador(
+            <?= htmlspecialchars($row->id); ?>,
+            <?= htmlspecialchars($data_voto[0]); ?>,
+            <?= htmlspecialchars($data_voto[1]); ?>,
+            <?= htmlspecialchars($data_voto[2]); ?>,
+            <?= htmlspecialchars($hora_voto[0]); ?>,
+            <?= htmlspecialchars($hora_voto[1]); ?>,
+            <?= htmlspecialchars($hora_voto[2]); ?>
+        );
+    </script>
+    <div style="background:url(images/buttons/<?php echo $row->top_img; ?>); background-repeat: no-repeat; background-size: 87px 47px; width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;">
+        <div style="width:87px; height:47px; font-size:10px; font-family:Arial; background: rgba(0, 0, 0, 0.7); text-shadow:1px 1px #000; font-weight:bold; color: #fff; text-align: center;">
+            <?= $language_05; ?><br>
+            <font size="3"><span id="contador<?= htmlspecialchars($row->id); ?>"></span></font><br>
+            <?= $language_06; ?>
+        </div>
+    </div>
+    <?php
 }
 ?>

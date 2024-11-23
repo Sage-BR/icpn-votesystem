@@ -9,6 +9,12 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
+// Inclui o arquivo que contém a função get_client_ip()
+include_once 'config/functions.php';
+
+// Captura o IP usando a função do arquivo de funções
+$client_ip = get_client_ip();
+
 if (!isset($_SESSION)){ session_start(); }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN http://www.w3.org/TR/html4/strict.dtd">
@@ -78,6 +84,10 @@ if (!isset($_SESSION)){ session_start(); }
 					</tr>
 				</table>
 			</div>
+			<span style="float:right; margin-right:5px;">
+			<!-- Exibe o IP capturado -->
+			Seu IP: <?php echo htmlspecialchars($client_ip); ?>
+			</span>
 		</div>
 	</body>
 </html>
