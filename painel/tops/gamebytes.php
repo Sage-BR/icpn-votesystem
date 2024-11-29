@@ -10,7 +10,7 @@
 //=======================================================================\\
 
 // Faz a requisição para a API.
-$url = "https://www.gamebytes.net/api.php?ip=".get_client_ip()."&username=".$row->top_id;
+$url = "https://www.gamebytes.net/api.php?ip=" . get_client_ip() . "&username=" . $row->top_id;
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $pagina = curl_exec($ch);
@@ -22,7 +22,7 @@ $data_modificada = '0000-00-00 00:00:00';
 
 // Verifica resposta da API.
 if ($http_code === 200) {
-    $voted = filter_var($pagina, FILTER_VALIDATE_BOOLEAN); // TRUE (já votou) ou FALSE (não votou).
+    $voted = filter_var($pagina, FILTER_VALIDATE_BOOLEAN); // TRUE (já votou)
 
     if ($voted && !isset($_COOKIE["gamebytes"])) {
         // Define cookie e tempo de próxima votação.

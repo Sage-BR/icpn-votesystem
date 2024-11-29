@@ -73,31 +73,56 @@ function info_table(string $tabela, string $coluna): ?string {
 }
 
 function get_client_ip() {
-    // Tentar obter o endereço IP do cliente de várias fontes
-    $ipaddress = $_SERVER['REMOTE_ADDR'];
-    
-    // Verificar se o endereço IP é um endereço IPv4
-    if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        return $ipaddress;
+    // Verificar se o IP é fornecido pelo Cloudflare (opcional)
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $ipaddress = $_SERVER['HTTP_CF_CONNECTING_IP'];
+        if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return $ipaddress; // Priorizar IPv4
+        }
     }
-    
-    // Se não for IPv4, verificar outras opções
-    foreach (array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED') as $header) {
-        if (isset($_SERVER[$header])) {
-            $ipaddress = $_SERVER[$header];
-            if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                return $ipaddress;
+
+    // Cabeçalhos que podem ser usados por proxies confiáveis
+    $trusted_headers = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED'];
+    foreach ($trusted_headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $ip_list = explode(',', $_SERVER[$header]);
+            foreach ($ip_list as $ip) {
+                $ip = trim($ip); // Remover espaços
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                    return $ip; // Priorizar IPv4
+                }
             }
         }
     }
-    
-    // Se não encontrar um endereço IPv4, retornar o endereço IPv6
-    if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        return $ipaddress;
+
+    // Usar REMOTE_ADDR como fallback para IPv4
+    if (!empty($_SERVER['REMOTE_ADDR']) && filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        return $_SERVER['REMOTE_ADDR'];
     }
-    
+
+    // Caso nenhum IPv4 seja encontrado, buscar um IPv6 válido
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP']) && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        return $_SERVER['HTTP_CF_CONNECTING_IP'];
+    }
+    foreach ($trusted_headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $ip_list = explode(',', $_SERVER[$header]);
+            foreach ($ip_list as $ip) {
+                $ip = trim($ip);
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                    return $ip; // Retornar IPv6 se não houver IPv4
+                }
+            }
+        }
+    }
+    if (!empty($_SERVER['REMOTE_ADDR']) && filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+
+    // Retornar 'UNKNOWN' se nenhum IP válido for encontrado
     return 'UNKNOWN';
 }
+
 
 function acessoSimples($url, &$info = null, $get= array() , $post=array(), $timeout = 10) {
 	$ch = curl_init();
@@ -127,6 +152,7 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 	$insert_tops = array(
 		array(1, 'L2jBrasil', 'https://top.l2jbrasil.com', 'l2jbrasil.png', 'l2jbrasil.php', 'sem_id', 'sem_token', 0, 0),
 		array(2, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0),
+		array(3, 'iTopZ', 'https://itopz.com', 'itopz.png', 'itopz.php', 'sem_id', 'sem_token', 1, 0),
 		//array(3, 'Private Server', 'https://www.private-server.ws', 'private_server_ws.jpg', 'privateserverws.php', 'sem_id', 'sem_token', 0, 0),
 		array(4, 'Gaming Top 100', 'http://www.gamingtop100.net', 'gamingtop100.gif', 'gamingtop100.php', 'sem_id', 'sem_token', 0, 0),
 		//array(5, 'Games Top 200', 'https://www.gamestop200.com', 'gamestop200.jpg', 'gamestop200.php', 'sem_id', 'sem_token', 0, 0),
