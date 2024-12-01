@@ -31,7 +31,7 @@ if(@fsockopen(str_replace("https://","",str_replace("http://","",$row->top_url))
 		<?php
 	}else{
 		?>
-		<div style='width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'><a href='https://www.l2servers.com/servers/vote-<?php echo $row->top_id; ?>' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='L2 Servers - Vote' border='0' width='87' height='47' onClick="SetCookie('l2servers');"></a></div>
+		<div style='width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'><a href='https://www.l2servers.com/servers/vote-<?php echo $row->top_id; ?>.php' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='L2 Servers - Vote' border='0' width='87' height='47' onClick="SetCookie('l2servers');"></a></div>
 		<?php
 	}
 }else{
