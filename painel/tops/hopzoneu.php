@@ -59,7 +59,7 @@ $tops_voted = array_replace($tops_voted, array($i => array($can_vote ? 1 : 0, da
 if ($can_vote):
     ?>
     <div style='width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'>
-        <a href='https://hopzone.eu/vote/<?php echo $row->top_id; ?>' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='Top L2JBrasil de Servidores de Lineage2' border='0' width='87' height='47'></a>
+        <a href='https://hopzone.eu/vote/<?php echo $row->top_id; ?>' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='HopZone EU' border='0' width='87' height='47'></a>
     </div>
     <?php
 else:
