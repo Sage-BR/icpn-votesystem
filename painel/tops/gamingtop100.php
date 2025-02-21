@@ -6,9 +6,10 @@
 //  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
 //  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
 // --------------------------------------------------------------------- \\
-//       Brazilian Developer / Website: http://www.icpfree.com.br       \\
+//       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
+//							 4TeamBR Fixes								 \\
 
 // Definir constante e IP do cliente
 define("GamingTop100", gethostbyname("gamingtop100.net"));
@@ -18,14 +19,23 @@ $ip_request = $_SERVER['REMOTE_ADDR'];
 $top_url = str_replace(["https://", "http://"], "", $row->top_url);
 if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
     @header('Content-Type: text/html; charset=utf-8');
-    $pagina = @file_get_contents("http://www.gamingtop100.net/ip_check/{$row->top_id}/{$ip_request}");
-
-    if ($pagina[0] == 1 && !isset($_COOKIE["gamingtop100"])) {
-        echo "<script>SetCookie('gamingtop100');</script>";
+    
+    // Fazer requisição com cURL
+    $ch = curl_init("http://www.gamingtop100.net/ip_check/{$row->top_id}/{$ip_request}");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    $pagina = curl_exec($ch);
+    curl_close($ch);
+    
+    $voted = ($pagina !== false && strlen($pagina) > 0 && $pagina[0] == '1');
+    
+    if ($voted) {
+        $data_modificada = date('Y-m-d H:i:s', strtotime('+12 hours'));
+        setcookie("gamingtop100", $data_modificada, time() + 43200, "/"); // Armazena cookie por 12 horas
+    } else {
+        $data_modificada = isset($_COOKIE["gamingtop100"]) ? $_COOKIE["gamingtop100"] : '0000-00-00 00:00:00';
     }
-
-    $data_modificada = isset($_COOKIE["gamingtop100"]) ? pega_cookie($_COOKIE["gamingtop100"]) : '0000-00-00 00:00:00';
-
+    
     if (strtotime($data_modificada) >= strtotime(date('Y-m-d H:i:s'))) {
         $data_voto = explode("-", substr($data_modificada, 0, 10));
         $hora_voto = explode(":", substr($data_modificada, 11));
@@ -46,7 +56,7 @@ if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
         ?>
         <div style="width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;">
             <a href="http://www.gamingtop100.net/in-<?php echo $row->top_id; ?>" target="_blank">
-                <img src="images/buttons/<?php echo $row->top_img; ?>" title="lineage 2 private servers" border="0" width="87" height="47" onclick="SetCookie('gamingtop100');">
+                <img src="images/buttons/<?php echo $row->top_img; ?>" title="lineage 2 private servers" border="0" width="87" height="47" onclick="document.cookie = 'gamingtop100=' + new Date().toISOString();">
             </a>
         </div>
         <?php

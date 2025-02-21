@@ -13,23 +13,32 @@ $db_data = isset($db_data) ? $db_data : ""; // Define um valor padrão vazio
 $db = strtolower($db_data) == "l2j" ? true : false;
 
 
-function resposta($msg){
-	echo "<script type=\"text/javascript\">
-		$('.msg').fadeIn('slow').html(" . json_encode($msg) . ").delay(3000).fadeOut('slow');
-	</script>";
+function resposta($msg) {
+    echo "<script type=\"text/javascript\">
+        $(document).ready(function(){
+            $('.msg').fadeIn(400).html(" . json_encode($msg) . ").delay(3000).fadeOut(400);
+        });
+    </script>";
 }
 
-function respostaDelay($msg, $delay){
-	echo "<script type=\"text/javascript\">
-		$('.msg').fadeIn('slow').html(" . json_encode($msg) . ").delay(" . intval($delay) . ").fadeOut('slow');
-	</script>";
+function respostaDelay($msg, $delay) {
+    echo "<script type=\"text/javascript\">
+        $(document).ready(function(){
+            $('.msg').fadeIn(400).html(" . json_encode($msg) . ").delay(" . intval($delay) . ").fadeOut(400);
+        });
+    </script>";
 }
 
-function redireciona($pag, $delay = 0){
-	echo "<script type=\"text/javascript\">
-		setTimeout(function(){ $('.formulario').fadeIn('slow').load(" . json_encode($pag) . "); }, " . intval($delay) . ");
-	</script>";
+function redireciona($pag, $delay = 0) {
+    echo "<script type=\"text/javascript\">
+        $(document).ready(function(){
+            setTimeout(function(){
+                $('.formulario').fadeIn(400).load(" . json_encode($pag) . ");
+            }, " . intval($delay) . ");
+        });
+    </script>";
 }
+
 
 function info_table(string $tabela, string $coluna): ?string {
     global $conn;
@@ -73,53 +82,59 @@ function info_table(string $tabela, string $coluna): ?string {
 }
 
 function get_client_ip() {
-    // Verificar se o IP é fornecido pelo Cloudflare (opcional)
-    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-        $ipaddress = $_SERVER['HTTP_CF_CONNECTING_IP'];
-        if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            return $ipaddress; // Priorizar IPv4
-        }
-    }
+    // Array para armazenar IPs encontrados
+    $found_ips = [
+        'ipv4' => null,
+        'ipv6' => null
+    ];
+    
+    // Lista de cabeçalhos a verificar, em ordem de prioridade
+    $headers = [
+        'HTTP_CF_CONNECTING_IP',    // Cloudflare
+        'HTTP_CLIENT_IP',           // Cliente direto
+        'HTTP_X_REAL_IP',          // Proxy reverso/Nginx
+        'HTTP_X_FORWARDED_FOR',     // Proxy encaminhado
+        'HTTP_X_FORWARDED',         // Proxy padrão
+        'HTTP_FORWARDED_FOR',       // Proxy RFC
+        'HTTP_FORWARDED',           // Proxy RFC
+        'REMOTE_ADDR'               // Endereço remoto direto
+    ];
 
-    // Cabeçalhos que podem ser usados por proxies confiáveis
-    $trusted_headers = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED'];
-    foreach ($trusted_headers as $header) {
+    // Função auxiliar para processar um IP
+    $processIP = function($ip) use (&$found_ips) {
+        $ip = trim($ip);
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $found_ips['ipv4'] = $ip;
+        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && !$found_ips['ipv6']) {
+            $found_ips['ipv6'] = $ip;
+        }
+    };
+
+    // Verificar cada cabeçalho
+    foreach ($headers as $header) {
         if (!empty($_SERVER[$header])) {
-            $ip_list = explode(',', $_SERVER[$header]);
-            foreach ($ip_list as $ip) {
-                $ip = trim($ip); // Remover espaços
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                    return $ip; // Priorizar IPv4
+            // Se o cabeçalho contiver múltiplos IPs (ex: X-Forwarded-For)
+            $ips = explode(',', $_SERVER[$header]);
+            
+            // Processar cada IP, começando pelo mais à esquerda
+            foreach ($ips as $ip) {
+                $processIP($ip);
+                
+                // Se encontramos um IPv4, podemos parar
+                if ($found_ips['ipv4']) {
+                    break 2;  // Sai dos dois loops
                 }
             }
         }
     }
 
-    // Usar REMOTE_ADDR como fallback para IPv4
-    if (!empty($_SERVER['REMOTE_ADDR']) && filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        return $_SERVER['REMOTE_ADDR'];
+    // Retornar o primeiro IP encontrado, priorizando IPv4
+    if ($found_ips['ipv4']) {
+        return $found_ips['ipv4'];
+    } elseif ($found_ips['ipv6']) {
+        return $found_ips['ipv6'];
     }
 
-    // Caso nenhum IPv4 seja encontrado, buscar um IPv6 válido
-    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP']) && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        return $_SERVER['HTTP_CF_CONNECTING_IP'];
-    }
-    foreach ($trusted_headers as $header) {
-        if (!empty($_SERVER[$header])) {
-            $ip_list = explode(',', $_SERVER[$header]);
-            foreach ($ip_list as $ip) {
-                $ip = trim($ip);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-                    return $ip; // Retornar IPv6 se não houver IPv4
-                }
-            }
-        }
-    }
-    if (!empty($_SERVER['REMOTE_ADDR']) && filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        return $_SERVER['REMOTE_ADDR'];
-    }
-
-    // Retornar 'UNKNOWN' se nenhum IP válido for encontrado
     return 'UNKNOWN';
 }
 
@@ -150,17 +165,16 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 	$db = strtolower($db_data) == "l2j" ? true : false;
 	$adms = null;
 	$insert_tops = array(
-		array(1, 'L2jBrasil', 'https://top.l2jbrasil.com', 'l2jbrasil.png', 'l2jbrasil.php', 'sem_id', 'sem_token', 0, 0),
+		array(1, 'L2jBrasil', 'https://top.l2jbrasil.com', 'l2jbrasil.png', 'l2jbrasil.php', 'sem_id', 'sem_token', 1, 0),
 		array(2, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0),
 		array(3, 'Gaming Top 100', 'http://www.gamingtop100.net', 'gamingtop100.gif', 'gamingtop100.php', 'sem_id', 'sem_token', 0, 0),
 		array(4, 'TOPGS200', 'http://www.topgs200.com', 'topgs200.jpg', 'topgs200.php', 'sem_id', 'sem_token', 0, 0),
 		array(5, 'Top 100 Arena', 'http://www.top100arena.com', 'top100arena.jpg', 'top100arena.php', 'sem_id', 'sem_token', 0, 0),
 		array(6, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
 		array(7, 'L2 Servers', 'https://www.l2servers.com', 'l2servers.png', 'l2servers.php', 'sem_id', 'sem_token', 0, 0),
-		array(8, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 0, 0),
+		array(8, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 1, 0),
 		array(9, 'iTopZ', 'https://itopz.com', 'itopz.png', 'itopz.php', 'sem_id', 'sem_token', 1, 0),
-		array(10, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0),
-		array(11, 'HOP ZONE', 'https://www.hopzone.net', 'hopzone.gif', 'hopzone.php', 'sem_id', 'sem_token', 1, 0)
+		array(10, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0)
 	);
 if (empty($admins)) {
     return respostaDelay($language_72, 4000);
@@ -275,7 +289,7 @@ $adms = rtrim($adms, ",");
 	$pag_config = fopen("config/connect_config.php", "w");
 	fwrite($pag_config, $html);
 	fclose($pag_config);
-	return respostaDelay($language_40."<br>".$language_41,8000).redireciona("links.php?icp=home",8000);
+	return respostaDelay($language_40."<br>".$language_41,8000).redireciona("links.php?icp=home",3000);
 }
 
 function logar($login,$senha){
@@ -309,7 +323,7 @@ function logar($login,$senha){
 				}
 				$_SESSION["UsuarioLogin"] = trim($results['login']);
 				$_SESSION["UsuarioNivel"] = $accesslevel;
-				return resposta("Entrando...").redireciona("links.php?icp=home",3000);
+				return resposta("Entrando...").redireciona("links.php?icp=home",1000);
 			}else{
 				if(!$L2jVersaoRussa){
 					// Login for aCis
@@ -325,7 +339,7 @@ function logar($login,$senha){
 							}
 							$_SESSION["UsuarioLogin"] = trim($results['login']);
 							$_SESSION["UsuarioNivel"] = $accesslevel;
-							return resposta("Entrando...").redireciona("links.php?icp=home",3000);
+							return resposta("Entrando...").redireciona("links.php?icp=home",1000);
 						}
 					}
 				}
@@ -343,7 +357,7 @@ function logar($login,$senha){
 				}
 				$_SESSION["UsuarioLogin"] = trim($results['account']);
 				$_SESSION["UsuarioNivel"] = $accesslevel;
-				return resposta("Entrando...").redireciona("links.php?icp=home",3000);
+				return resposta("Entrando...").redireciona("links.php?icp=home",1000);
 			}else{
 				return resposta($language_25."<br>".$language_24);
 			}
