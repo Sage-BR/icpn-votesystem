@@ -171,7 +171,7 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 		array(4, 'TOPGS200', 'http://www.topgs200.com', 'topgs200.jpg', 'topgs200.php', 'sem_id', 'sem_token', 0, 0),
 		array(5, 'Top 100 Arena', 'http://www.top100arena.com', 'top100arena.jpg', 'top100arena.php', 'sem_id', 'sem_token', 0, 0),
 		array(6, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
-		array(7, 'L2 Servers', 'https://www.l2servers.com', 'l2servers.png', 'l2servers.php', 'sem_id', 'sem_token', 0, 0),
+		array(7, 'L2Top', 'https://l2top.co/', 'l2top.co.png', 'l2top.co.php', 'sem_id', 'sem_token', 0, 0),
 		array(8, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 1, 0),
 		array(9, 'iTopZ', 'https://itopz.com', 'itopz.png', 'itopz.php', 'sem_id', 'sem_token', 1, 0),
 		array(10, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0)
