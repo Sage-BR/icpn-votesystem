@@ -165,7 +165,7 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 	$db = strtolower($db_data) == "l2j" ? true : false;
 	$adms = null;
 	$insert_tops = array(
-		array(1, 'L2jBrasil', 'https://top.l2jbrasil.com', 'l2jbrasil.png', 'l2jbrasil.php', 'sem_id', 'sem_token', 0, 0),
+		array(1, 'L2jBrasil', 'https://top.l2jbrasil.com', 'l2jbrasil.png', 'l2jbrasil.php', 'sem_id', 'sem_token', 1, 0),
 		array(2, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0),
 		array(3, 'Gaming Top 100', 'http://www.gamingtop100.net', 'gamingtop100.gif', 'gamingtop100.php', 'sem_id', 'sem_token', 0, 0),
 		array(4, 'TOPGS200', 'http://www.topgs200.com', 'topgs200.jpg', 'topgs200.php', 'sem_id', 'sem_token', 0, 0),
