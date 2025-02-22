@@ -6,18 +6,27 @@
 //  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
 //  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
 // --------------------------------------------------------------------- \\
+//       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\<?php
+//=======================================================================\\
+//  ## ####### #######                                                   \\
+//  ## ##      ##   ##                                                   \\
+//  ## ##      ## ####  |\  | |¯¯¯ ¯¯|¯¯ \      / |¯¯¯| |¯¯¯| | / |¯¯¯|  \\
+//  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
+//  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
+// --------------------------------------------------------------------- \\
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
 //							 4TeamBR Fixes								 \\
 
-$player_id = $row->top_token;
-$topL2jbrURL = "https://top.l2jbrasil.com/votesystem/?hours=12&player_id={$player_id}&username={$row->top_id}&type=json";
+$player_id = md5("ipc".$_SESSION["UsuarioLogin"].$row->top_id);
+$ip = get_client_ip();
+$topL2jbrURL = "https://top.l2jbrasil.com/votesystem/?hours=12&player_id={$player_id}&username={$row->top_id}&ip={$ip}&type=json";
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $topL2jbrURL);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
+curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.6');
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
@@ -59,16 +68,14 @@ if ($response === false) {
 if ($can_vote):
 	?>
 		<div style='width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'>
-			<a href='https://top.l2jbrasil.com/index.php?a=in&u=<?php echo $row->top_id; ?>&player_id=<?php echo $player_id; ?>' target='_blank'>
-                <img src='images/buttons/<?php echo $row->top_img; ?>' title='Top L2JBrasil de Servidores de Lineage2' border='0' width='87' height='47'>
-            </a>
+			<a href='https://top.l2jbrasil.com/index.php?a=in&u=<?php echo $row->top_id; ?>&player_id=<?php echo $player_id; ?>' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='Top L2JBrasil de Servidores de Lineage2' border='0' width='87' height='47'></a>
 		</div>
 		<?php
 else:
 	$hoursToVoteAgain = 12;
 	
 	//Legacy Code
-	$data_modificada = date("Y-m-d H:i:s", strtotime($last_vote['date']." + {$hoursToVoteAgain} hours"));
+	$data_modificada = $data_modificada = date("Y-m-d H:i:s",strtotime($last_vote['date']." + {$hoursToVoteAgain} hours"));
 	$data_voto = explode("-", substr(str_replace(" ", "", $data_modificada), 0, 10));
 	$hora_voto = explode(":", substr(str_replace(" ", "", $data_modificada), 10, 19));
 	$tops_voted = array_replace($tops_voted, array($i => array(1, $data_modificada)));

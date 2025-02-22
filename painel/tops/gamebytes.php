@@ -36,40 +36,70 @@ $hasVoted = GameBytes::Check($ip, $username);
 ?>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let lastVoteTime = localStorage.getItem("gamebytes_voted");
-        let now = new Date();
+document.addEventListener("DOMContentLoaded", function () {
+    let lastVoteTime = localStorage.getItem("gamebytes_voted");
+    let now = new Date();
 
-        if (<?= $hasVoted ? 'true' : 'false' ?>) {
-            // API retornou TRUE (usuário já votou)
-            if (!lastVoteTime) {
-                let nextVoteTime = new Date();
-                nextVoteTime.setHours(nextVoteTime.getHours() + 12);
-                localStorage.setItem("gamebytes_voted", nextVoteTime.toISOString());
-            } else {
-                let voteDate = new Date(lastVoteTime);
-                if (now < voteDate) {
-                    // Ainda dentro do tempo de espera, exibe o contador
-                    atualizaContador(<?= htmlspecialchars($row->id); ?>, voteDate.getFullYear(), voteDate.getMonth() + 1, voteDate.getDate(), voteDate.getHours(), voteDate.getMinutes(), voteDate.getSeconds());
-                    document.getElementById("vote-box").classList.add("disabled");
-                } else {
-                    // Tempo expirou, libera o botão
-                    localStorage.removeItem("gamebytes_voted");
-                    document.getElementById("vote-box").classList.remove("disabled");
-                }
-            }
+    if (<?= $hasVoted ? 'true' : 'false' ?>) {
+        // API retornou TRUE (usuário já votou)
+        if (!lastVoteTime) {
+            let nextVoteTime = new Date();
+            nextVoteTime.setHours(nextVoteTime.getHours() + 12);
+            localStorage.setItem("gamebytes_voted", nextVoteTime.toISOString());
+
+            console.log("Primeira vez acessando, salvando contador:", nextVoteTime);
+
+            // Aguarde um pequeno tempo para garantir que o DOM está pronto antes de chamar o contador
+            setTimeout(function() {
+                atualizaContador(
+                    <?= htmlspecialchars($row->id); ?>, 
+                    nextVoteTime.getFullYear(), 
+                    nextVoteTime.getMonth() + 1, 
+                    nextVoteTime.getDate(), 
+                    nextVoteTime.getHours(), 
+                    nextVoteTime.getMinutes(), 
+                    nextVoteTime.getSeconds()
+                );
+            }, 100);
         } else {
-            // API retornou FALSE, limpa o localStorage e libera o botão de votação
-            localStorage.removeItem("gamebytes_voted");
-            document.getElementById("vote-box").classList.remove("disabled");
-        }
-    });
+            let voteDate = new Date(lastVoteTime);
+            if (now < voteDate) {
+                console.log("Já existe um tempo salvo, exibindo contador:", voteDate);
 
-    function registerVote() {
-        let nextVoteTime = new Date();
-        nextVoteTime.setHours(nextVoteTime.getHours() + 12);
-        localStorage.setItem("gamebytes_voted", nextVoteTime.toISOString());
+                // Exibe o contador com os valores salvos
+                setTimeout(function() {
+                    atualizaContador(
+                        <?= htmlspecialchars($row->id); ?>, 
+                        voteDate.getFullYear(), 
+                        voteDate.getMonth() + 1, 
+                        voteDate.getDate(), 
+                        voteDate.getHours(), 
+                        voteDate.getMinutes(), 
+                        voteDate.getSeconds()
+                    );
+                }, 100);
+                
+                document.getElementById("vote-box").classList.add("disabled");
+            } else {
+                console.log("Tempo expirado, liberando botão de voto.");
+                localStorage.removeItem("gamebytes_voted");
+                document.getElementById("vote-box").classList.remove("disabled");
+            }
+        }
+    } else {
+        // API retornou FALSE, limpa o localStorage e libera o botão de votação
+        console.log("API retornou FALSE, limpando LocalStorage e liberando voto.");
+        localStorage.removeItem("gamebytes_voted");
+        document.getElementById("vote-box").classList.remove("disabled");
     }
+});
+
+function registerVote() {
+    let nextVoteTime = new Date();
+    nextVoteTime.setHours(nextVoteTime.getHours() + 12);
+    localStorage.setItem("gamebytes_voted", nextVoteTime.toISOString());
+    console.log("Voto registrado, próximo voto permitido em:", nextVoteTime);
+}
 </script>
 
 <?php if ($hasVoted) : ?>
