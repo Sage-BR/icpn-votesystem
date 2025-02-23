@@ -12,73 +12,51 @@
 //							 4TeamBR Fixes								 \\
 
 $URL = "https://api.hopzone.eu/v1/?api_key={$row->top_token}&ip=" . get_client_ip() . "&type=json";
-
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $URL);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
 $response = curl_exec($ch);
-$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-$can_vote = false;
-$tops_voted = array_replace($tops_voted, array($i => array(1, '0000-00-00 00:00:00')));
+$json = json_decode($response, true);
+$next_vote_time = $json['vote_time'] + 43200; // 12 horas em segundos
+$can_vote = (time() >= $next_vote_time);
 
-if ($response === false || $http_status != 200) {
-    // Caso a API não esteja acessível, permitir o voto como fallback
-    $can_vote = true;
-} else {
-    $json = json_decode($response, true);
-
-    if ($json !== null) {
-        // Verificar o status do voto
-        if (isset($json['status']) && $json['status'] === 'completed') {
-            // Verificar o tempo do último voto e calcular o próximo
-            if (isset($json['hours_since_vote']) && $json['hours_since_vote'] >= 12) {
-                // Permitir o voto se passaram 12 horas desde o último
-                $can_vote = true;
-            } else {
-                // Bloquear o voto se o tempo for menor que 12 horas
-                $can_vote = false;
-            }
-        } elseif (isset($json['status']) && $json['status'] === 'pending') {
-            // Se o status for "pending", permitir o voto
-            $can_vote = true;
-        } else {
-            // Qualquer outro status, permitir o voto como fallback
-            $can_vote = true;
-        }
-    }
-}
-
-// Atualizar o array de votos com o estado atual
-$tops_voted = array_replace($tops_voted, array($i => array($can_vote ? 1 : 0, date('Y-m-d H:i:s'))));
-
-// use the value of can_vote as needed
 if ($can_vote):
     ?>
-    <div style='width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'>
-        <a href='https://hopzone.eu/vote/<?php echo $row->top_id; ?>' target='_blank'><img src='images/buttons/<?php echo $row->top_img; ?>' title='HopZone EU' border='0' width='87' height='47'></a>
+    <div style="width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;">
+        <a href="https://hopzone.eu/vote/<?php echo $row->top_id; ?>" target="_blank">
+            <img src="images/buttons/<?php echo $row->top_img; ?>" title="HopZone EU" border="0" width="87" height="47">
+        </a>
     </div>
     <?php
 else:
-    $hoursToVoteAgain = 12;
-    $data_modificada = date("Y-m-d H:i:s", strtotime("{$json['vote_time']} + {$hoursToVoteAgain} hours"));
-    $data_voto = explode("-", substr(str_replace(" ", "", $data_modificada), 0, 10));
-    $hora_voto = explode(":", substr(str_replace(" ", "", $data_modificada), 10, 19));
-    $tops_voted = array_replace($tops_voted, array($i => array(1, $data_modificada)));
-
+    $data_voto = date("Y-m-d H:i:s", $next_vote_time);
+    $data_voto_exploded = explode(" ", $data_voto);
+    $data_partes = explode("-", $data_voto_exploded[0]);
+    $hora_partes = explode(":", $data_voto_exploded[1]);
     ?>
     <script language="javascript">
-        atualizaContador(<?php echo $row->id; ?>,<?php echo $data_voto[0]; ?>,<?php echo $data_voto[1]; ?>,<?php echo $data_voto[2]; ?>,<?php echo $hora_voto[0]; ?>,<?php echo $hora_voto[1]; ?>,<?php echo $hora_voto[2]; ?>);
+        atualizaContador(
+            <?php echo $row->id; ?>,
+            <?php echo $data_partes[0]; ?>,
+            <?php echo $data_partes[1]; ?>,
+            <?php echo $data_partes[2]; ?>,
+            <?php echo $hora_partes[0]; ?>,
+            <?php echo $hora_partes[1]; ?>,
+            <?php echo $hora_partes[2]; ?>
+        );
     </script>
-    <div style='background:url(images/buttons/<?php echo $row->top_img; ?>); background-repeat: no-repeat; background-size: 87px 47px; width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;'>
-        <div style='width:89px; *width:87px; _width:87px; height:49px; *height:47px; _height:47px; font-size:10px; font-family:Arial; background: rgba(0,0,0,0.7); text-shadow:1px 1px #000; font-weight:bold;'>
-            <?php echo $language_05; ?><br><font size='3'><span id='contador<?php echo $row->id; ?>'></span></font><br><?php echo $language_06; ?>
+    <div style="background:url(images/buttons/<?php echo $row->top_img; ?>); background-repeat: no-repeat; background-size: 87px 47px; width:87px; height:47px; border:1px solid #999; margin-top:5px; margin-left:5px; float:left;">
+        <div style="width:87px; height:47px; font-size:10px; font-family:Arial; background: rgba(0,0,0,0.7); text-shadow:1px 1px #000; font-weight:bold; color: #fff; text-align: center;">
+            <?php echo $language_05; ?><br>
+            <font size="3"><span id="contador<?php echo $row->id; ?>"></span></font><br>
+            <?php echo $language_06; ?>
         </div>
     </div>
     <?php
 endif;
+?>
