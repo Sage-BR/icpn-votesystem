@@ -32,21 +32,29 @@ if ($response !== false && $http_status == 200) {
     $json = json_decode($response, true);
 
     if ($json !== null && isset($json['vote'])) {
+        $voteData = $json['vote'];
+
+        // Se for um objeto único (caso não tenha votos), transformamos em um array para manter a lógica compatível
+        if (!isset($voteData[0])) {
+            $voteData = [$voteData];
+        }
+
         $last_vote = null;
 
-        foreach ($json['vote'] as $vote) {
-            if ($vote['ip'] == $ip_usuario) {
+        foreach ($voteData as $vote) {
+            if (isset($vote['ip']) && $vote['ip'] === $ip_usuario) {
                 $last_vote = $vote; // Armazena o último voto do usuário com o mesmo IP
             }
         }
 
         if ($last_vote !== null) {
-            $hours_since_vote = floatval($last_vote['hours_since_vote']);
+            $hours_since_vote = isset($last_vote['hours_since_vote']) ? floatval($last_vote['hours_since_vote']) : 12;
 
-            if (isset($last_vote['status']) && $last_vote['status'] == '1' && $hours_since_vote < 12) {
-                $can_vote = false;
-            } else {
+            // Se o status for 0 ou hours_since_vote for negativo, significa que o usuário pode votar
+            if ($last_vote['status'] == '0' || $hours_since_vote < 0) {
                 $can_vote = true;
+            } elseif ($last_vote['status'] == '1' && $hours_since_vote < 12) {
+                $can_vote = false;
             }
         }
     }
@@ -95,4 +103,3 @@ else:
     </div>
     <?php
 endif;
-
