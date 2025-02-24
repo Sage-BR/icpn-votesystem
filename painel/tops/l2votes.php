@@ -90,6 +90,6 @@ if (@fsockopen(str_replace(["https://", "http://"], "", $row->top_url), 80, $err
         <?php
     }
 } else {
-    $tops_voted = array_replace($tops_voted, array($i => array(1, '0000-00-00 00:00:00')));
+    $tops_voted = array_replace($tops_voted, array($row => array(1, '0000-00-00 00:00:00')));
 }
 ?>

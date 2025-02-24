@@ -9,7 +9,7 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
-//							 4TeamBR Fixes								 \\
+//				      4TeamBR https://4teambr.com/						 \\
 
 class L2Top {
     public static function CheckVote($ip, $topId, $topUrl) {

@@ -9,6 +9,7 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
+//				      4TeamBR https://4teambr.com/						 \\
 
 // Faz a requisição para a API.
 $url = "https://top.4teambr.com/api.php?name=" . $row->top_id . "&ip=" . get_client_ip();
@@ -21,7 +22,7 @@ curl_close($ch);
 // Inicializa variáveis padrão.
 $can_vote = false;
 $data_modificada = '0000-00-00 00:00:00';
-$tops_voted = array_replace($tops_voted ?? [], [$i => [1, $data_modificada]]);
+$tops_voted = array_replace($tops_voted ?? [], [$row->id => [1, $data_modificada]]);
 
 if ($http_code === 200) {
     $json = json_decode($pagina, true);
@@ -67,7 +68,7 @@ if ($can_vote || $dataModificada <= $dataAtual) {
     $data_voto = explode("-", substr(str_replace(" ", "", $data_modificada), 0, 10));
     $hora_voto = explode(":", substr(str_replace(" ", "", $data_modificada), 10, 19));
 
-    $tops_voted = array_replace($tops_voted, [$i => [1, $data_modificada]]);
+    $tops_voted = array_replace($tops_voted, [$row->id => [1, $data_modificada]]);
     ?>
     <script language="javascript">
         atualizaContador(

@@ -13,7 +13,6 @@
 
 // Definir constante e IP do cliente
 define("GamingTop100", gethostbyname("gamingtop100.net"));
-$ip_request = $_SERVER['REMOTE_ADDR'];
 
 // Verificar conexão ao servidor
 $top_url = str_replace(["https://", "http://"], "", $row->top_url);
@@ -21,7 +20,7 @@ if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
     @header('Content-Type: text/html; charset=utf-8');
     
     // Fazer requisição com cURL
-    $ch = curl_init("http://www.gamingtop100.net/ip_check/{$row->top_id}/{$ip_request}");
+    $ch = curl_init("http://www.gamingtop100.net/ip_check/{$row->top_id}/" . get_client_ip());
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     $pagina = curl_exec($ch);
@@ -39,7 +38,7 @@ if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
     if (strtotime($data_modificada) >= strtotime(date('Y-m-d H:i:s'))) {
         $data_voto = explode("-", substr($data_modificada, 0, 10));
         $hora_voto = explode(":", substr($data_modificada, 11));
-        $tops_voted = array_replace($tops_voted, [$i => [1, $data_modificada]]);
+        $tops_voted = array_replace($tops_voted, [$row->id => [1, $data_modificada]]);
         ?>
         <script>
             atualizaContador(<?php echo $row->id; ?>, <?php echo implode(',', array_merge($data_voto, $hora_voto)); ?>);
@@ -62,6 +61,6 @@ if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
         <?php
     }
 } else {
-    $tops_voted = array_replace($tops_voted, [$i => [1, '0000-00-00 00:00:00']]);
+    $tops_voted = array_replace($tops_voted, [$row->id => [1, '0000-00-00 00:00:00']]);
 }
 ?>

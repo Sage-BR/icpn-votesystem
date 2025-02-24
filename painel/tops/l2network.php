@@ -35,5 +35,5 @@ if(@fsockopen(str_replace("https://","",str_replace("http://","",$row->top_url))
 		<?php
 	}
 }else{
-	$tops_voted = array_replace($tops_voted, array($i => array(1, '0000-00-00 00:00:00')));
+	$tops_voted = array_replace($tops_voted, [$row->id => [1, '0000-00-00 00:00:00']]);
 }

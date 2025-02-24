@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 //=======================================================================\\
 //  ## ####### #######                                                   \\
 //  ## ##      ##   ##                                                   \\
@@ -27,31 +30,40 @@ if($_SESSION["UsuarioNivel"] == 1){ ?>
 	</span>
 </div>
 <div style="width:470px; height:auto; margin:auto;" id="banners">
-	<?php
-	$tops = $conn->prepare("SELECT * FROM icp_votesystem_tops WHERE disponivel = '1'");
-	$tops->execute();
-	if($tops->rowCount() == 0){
-		if ($_SESSION["UsuarioNivel"] == 1) {
-			echo resposta($language_70)."<script type='text/javascript'>adm();</script>";
-		}else{
-			echo $language_03."<br>".$language_04;
-		}
-	}else{
-		$tops_voted = array();
-		$data_modificada = null;
-		$voto = 0;
-		for($x=0;$x<$tops->rowCount();$x++){
-			array_push($tops_voted, [0,'0000-00-00 00:00:00']);
-		}
-		$i = 0;
-		while ($row = $tops->fetchObject()){
-			include_once("painel/tops/".$row->top_btn);
-			$i++;
-		}
-		for($x=0;$x<count($tops_voted);$x++){
-			$voto += $tops_voted[$x][0];
-		}
-		?>
+<?php
+$tops = $conn->prepare("SELECT * FROM icp_votesystem_tops WHERE disponivel = '1'");
+$tops->execute();
+
+if ($tops->rowCount() == 0) {
+    if ($_SESSION["UsuarioNivel"] == 1) {
+        echo resposta($language_70) . "<script type='text/javascript'>adm();</script>";
+    } else {
+        echo $language_03 . "<br>" . $language_04;
+    }
+} else {
+    $tops_voted = [];
+    $data_modificada = null;
+    $voto = 0;
+
+    // Inicializa o array com os IDs reais como chave
+    while ($row = $tops->fetchObject()) {
+        $tops_voted[$row->id] = [0, '0000-00-00 00:00:00'];
+    }
+
+    // Reinicia a consulta para reutilização
+    $tops->execute();
+
+    // Processa os votos
+    while ($row = $tops->fetchObject()) {
+        include_once("painel/tops/" . $row->top_btn);
+    }
+
+    // Soma os votos
+    foreach ($tops_voted as $voto_data) {
+        $voto += $voto_data[0];
+    }
+?>
+
 		<div class='verify' style='text-align:center;'><img src='images/ajax-loader.gif'><br /><?php echo $language_30; ?></div>
 		<?php
 		if(isset($_POST["verificar"])){

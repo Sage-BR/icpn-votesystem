@@ -6,6 +6,19 @@
 //  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
 //  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
 // --------------------------------------------------------------------- \\
+//       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
+//                 Email & Skype: ivan1507@gmail.com.br                  \\
+//=======================================================================\\
+//				      4TeamBR https://4teambr.com/						 \\
+
+<?php
+//=======================================================================\\
+//  ## ####### #######                                                   \\
+//  ## ##      ##   ##                                                   \\
+//  ## ##      ## ####  |\  | |¯¯¯ ¯¯|¯¯ \      / |¯¯¯| |¯¯¯| | / |¯¯¯|  \\
+//  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
+//  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
+// --------------------------------------------------------------------- \\
 //       Brazilian Developer / Website: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
@@ -52,10 +65,12 @@ if ($connection) {
 
     // Verifica se o tempo para votar novamente já passou
     if (strtotime($data_modificada) >= strtotime(date('Y-m-d H:i:s'))) {
-        // Calcula a data e a hora do último voto
+        // O usuário JÁ votou, então ele NÃO pode votar agora
+        $tops_voted = array_replace($tops_voted, [$row->id => [0, date('Y-m-d H:i:s')]]);
+        
+        // Exibir contador
         $data_voto = explode("-", substr($data_modificada, 0, 10));
         $hora_voto = explode(":", substr($data_modificada, 11));
-
         ?>
         <script>
             atualizaContador(
@@ -91,7 +106,6 @@ if ($connection) {
         </div>
         <?php
     } else {
-        // Exibe o botão de votação se o tempo já passou
         ?>
         <div style="width:87px; height:47px; 
                     border:1px solid #999; 
@@ -111,6 +125,6 @@ if ($connection) {
     }
 } else {
     // Em caso de falha na conexão, configura um valor padrão
-    $tops_voted = array_replace($tops_voted, [$i => [1, '0000-00-00 00:00:00']]);
+    $tops_voted = array_replace($tops_voted, [$row->id => [1, '0000-00-00 00:00:00']]);
 }
 ?>
