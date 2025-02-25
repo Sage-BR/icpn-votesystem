@@ -6,19 +6,6 @@
 //  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
 //  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
 // --------------------------------------------------------------------- \\
-//       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
-//                 Email & Skype: ivan1507@gmail.com.br                  \\
-//=======================================================================\\
-//				      4TeamBR https://4teambr.com/						 \\
-
-<?php
-//=======================================================================\\
-//  ## ####### #######                                                   \\
-//  ## ##      ##   ##                                                   \\
-//  ## ##      ## ####  |\  | |¯¯¯ ¯¯|¯¯ \      / |¯¯¯| |¯¯¯| | / |¯¯¯|  \\
-//  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
-//  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
-// --------------------------------------------------------------------- \\
 //       Brazilian Developer / Website: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
@@ -66,7 +53,7 @@ if ($connection) {
     // Verifica se o tempo para votar novamente já passou
     if (strtotime($data_modificada) >= strtotime(date('Y-m-d H:i:s'))) {
         // O usuário JÁ votou, então ele NÃO pode votar agora
-        $tops_voted = array_replace($tops_voted, [$row->id => [0, date('Y-m-d H:i:s')]]);
+        $tops_voted = array_replace($tops_voted, [$row->id => [1, $data_modificada]]);
         
         // Exibir contador
         $data_voto = explode("-", substr($data_modificada, 0, 10));
@@ -125,6 +112,7 @@ if ($connection) {
     }
 } else {
     // Em caso de falha na conexão, configura um valor padrão
-    $tops_voted = array_replace($tops_voted, [$row->id => [1, '0000-00-00 00:00:00']]);
+    $tops_voted = array_replace($tops_voted, [$row->id => [0, '0000-00-00 00:00:00']]);
 }
 ?>
+

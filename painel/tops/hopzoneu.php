@@ -9,7 +9,6 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
-//				      4TeamBR https://4teambr.com/						 \\
 
 // Definir URL da API
 $URL = "https://api.hopzone.eu/v1/?api_key={$row->top_token}&ip=" . get_client_ip() . "&type=json";
@@ -69,9 +68,9 @@ if ($response === false || $http_status != 200) {
 
 // Atualizar `$tops_voted`
 if ($can_vote) {
-    $tops_voted = array_replace($tops_voted, array($row->id => array(1, '0000-00-00 00:00:00'))); 
+    $tops_voted = array_replace($tops_voted, array($row->id => array(0, '0000-00-00 00:00:00'))); 
 } else {
-    $tops_voted = array_replace($tops_voted, array($row->id => array(0, date('Y-m-d H:i:s'))));
+    $tops_voted = array_replace($tops_voted, array($row->id => array(1, date('Y-m-d H:i:s'))));
 }
 
 // Exibir botão ou contador de tempo restante

@@ -169,13 +169,12 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 		array(2, '4TOP Servers', 'https://top.4teambr.com', '4topmmo.png', '4topmmo.php', 'sem_id', 'sem_token', 0, 0),
 		array(3, 'Gaming Top 100', 'http://www.gamingtop100.net', 'gamingtop100.gif', 'gamingtop100.php', 'sem_id', 'sem_token', 0, 0),
 		array(4, 'TOPGS200', 'http://www.topgs200.com', 'topgs200.jpg', 'topgs200.php', 'sem_id', 'sem_token', 0, 0),
-		array(5, 'Top 100 Arena', 'http://www.top100arena.com', 'top100arena.jpg', 'top100arena.php', 'sem_id', 'sem_token', 0, 0),
-		array(6, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
-		array(7, 'L2Top', 'https://l2top.co', 'l2top.co.png', 'l2top.co.php', 'sem_id', 'sem_token', 0, 0),
-		array(8, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 1, 0),
-		array(9, 'iTopZ', 'https://itopz.com', 'itopz.png', 'itopz.php', 'sem_id', 'sem_token', 1, 0),
-		array(10, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0),
-		array(11, 'GamesTop200', 'https://www.gamestop200.com', 'gamestop200.jpg', 'gamestop200.php', 'sem_id', 'sem_token', 0, 0)
+		array(5, 'GameBytes', 'https://www.gamebytes.net', 'gamebytes.png', 'gamebytes.php', 'sem_id', 'sem_token', 0, 0),
+		array(6, 'L2Top', 'https://l2top.co', 'l2top.co.png', 'l2top.co.php', 'sem_id', 'sem_token', 0, 0),
+		array(7, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 1, 0),
+		array(8, 'iTopZ', 'https://itopz.com', 'itopz.png', 'itopz.php', 'sem_id', 'sem_token', 1, 0),
+		array(9, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0),
+		array(10, 'GamesTop200', 'https://www.gamestop200.com', 'gamestop200.jpg', 'gamestop200.php', 'sem_id', 'sem_token', 0, 0)
 	);
 if (empty($admins)) {
     return respostaDelay($language_72, 4000);

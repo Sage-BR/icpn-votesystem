@@ -33,6 +33,12 @@ class GameBytes {
 $ip = get_client_ip();
 $username = $row->top_id;
 $hasVoted = GameBytes::Check($ip, $username);
+
+if ($hasVoted) {
+    $tops_voted[$row->id] = [1, $data_modificada]; // Se votado, define a data correta
+} else {
+    $tops_voted[$row->id] = [0, '0000-00-00 00:00:00']; // Se não votado ou erro de conexão, define como não votado
+}
 ?>
 
 <script>
@@ -41,15 +47,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let now = new Date();
 
     if (<?= $hasVoted ? 'true' : 'false' ?>) {
-        // API retornou TRUE (usuário já votou)
         if (!lastVoteTime) {
             let nextVoteTime = new Date();
             nextVoteTime.setHours(nextVoteTime.getHours() + 12);
             localStorage.setItem("gamebytes_voted", nextVoteTime.toISOString());
 
-            console.log("Primeira vez acessando, salvando contador:", nextVoteTime);
-
-            // Aguarde um pequeno tempo para garantir que o DOM está pronto antes de chamar o contador
             setTimeout(function() {
                 atualizaContador(
                     <?= htmlspecialchars($row->id); ?>, 
@@ -64,9 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             let voteDate = new Date(lastVoteTime);
             if (now < voteDate) {
-                console.log("Já existe um tempo salvo, exibindo contador:", voteDate);
-
-                // Exibe o contador com os valores salvos
                 setTimeout(function() {
                     atualizaContador(
                         <?= htmlspecialchars($row->id); ?>, 
@@ -81,14 +80,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 document.getElementById("vote-box").classList.add("disabled");
             } else {
-                console.log("Tempo expirado, liberando botão de voto.");
                 localStorage.removeItem("gamebytes_voted");
                 document.getElementById("vote-box").classList.remove("disabled");
             }
         }
     } else {
-        // API retornou FALSE, limpa o localStorage e libera o botão de votação
-        console.log("API retornou FALSE, limpando LocalStorage e liberando voto.");
         localStorage.removeItem("gamebytes_voted");
         document.getElementById("vote-box").classList.remove("disabled");
     }
@@ -98,7 +94,6 @@ function registerVote() {
     let nextVoteTime = new Date();
     nextVoteTime.setHours(nextVoteTime.getHours() + 12);
     localStorage.setItem("gamebytes_voted", nextVoteTime.toISOString());
-    console.log("Voto registrado, próximo voto permitido em:", nextVoteTime);
 }
 </script>
 

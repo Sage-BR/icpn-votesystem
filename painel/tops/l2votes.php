@@ -64,6 +64,9 @@ if (@fsockopen(str_replace(["https://", "http://"], "", $row->top_url), 80, $err
             </div>
             <?php
         } else {
+			// Se não for permitido votar, exibe o contador de tempo restante
+			$tops_voted = array_replace($tops_voted, array($row->id => array(1, date("Y-m-d H:i:s"))));
+			
             // Se não for permitido votar, exibe o contador de tempo restante
             $data_voto = explode("-", date("Y-m-d", strtotime($nextVoteTime)));
             $hora_voto = explode(":", date("H:i:s", strtotime($nextVoteTime)));
@@ -90,6 +93,6 @@ if (@fsockopen(str_replace(["https://", "http://"], "", $row->top_url), 80, $err
         <?php
     }
 } else {
-    $tops_voted = array_replace($tops_voted, array($row => array(1, '0000-00-00 00:00:00')));
+    $tops_voted = array_replace($tops_voted, array($row->id => array(0, '0000-00-00 00:00:00')));
 }
 ?>

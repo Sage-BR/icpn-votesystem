@@ -82,7 +82,7 @@ else:
 
     // Tempo formatado corretamente
     $data_modificada = $nextVoteTime->format("Y-m-d H:i:s");
-    $tops_voted = array_replace($tops_voted, array($i => array(1, $data_modificada)));
+    $tops_voted = array_replace($tops_voted, [$row->id => [1, $data_modificada]]);
 
     ?>
     <script language="javascript">
