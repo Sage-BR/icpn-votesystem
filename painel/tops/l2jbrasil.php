@@ -9,7 +9,7 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
-//							 4TeamBR Fixes								 \\
+//				      4TeamBR https://4teambr.com/						 \\
 
 $player_id = $row->top_token;
 $topL2jbrURL = "https://top.l2jbrasil.com/votesystem/?hours=12&player_id={$player_id}&username={$row->top_id}&type=json";

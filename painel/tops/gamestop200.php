@@ -6,9 +6,10 @@
 //  ## ##      ##       | \ | |--    |    \    /  | | | | |_| |<   ¯\_   \\
 //  ## ####### ##       |  \| |___   |     \/\/   |___| | |\  | \ |___|  \\
 // --------------------------------------------------------------------- \\
-//       Brazilian Developer / Website: http://www.icpfree.com.br       \\
+//       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
+//				      4TeamBR https://4teambr.com/						 \\
 
 // Define constante e IP do cliente
 define("GamesTop200", gethostbyname("gamestop200.com"));
@@ -27,6 +28,7 @@ if ($connection) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 

@@ -23,6 +23,7 @@ class L2Top {
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                 
@@ -42,6 +43,12 @@ $ip = get_client_ip();
 $topId = $row->top_id;
 $topUrl = $row->top_url;
 $hasVoted = L2Top::CheckVote($ip, $topId, $topUrl);
+
+if ($hasVoted) {
+    $tops_voted[$row->id] = [1, $data_modificada]; // Se votado, define a data correta
+} else {
+    $tops_voted[$row->id] = [0, '0000-00-00 00:00:00']; // Se não votado ou erro de conexão, define como não votado
+}
 ?>
 
 <script>

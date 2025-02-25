@@ -9,7 +9,7 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
-//							 4TeamBR Fixes								 \\
+//				      4TeamBR https://4teambr.com/						 \\
 
 // Definir constante e IP do cliente
 define("GamingTop100", gethostbyname("gamingtop100.net"));
@@ -22,6 +22,8 @@ if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
     // Fazer requisição com cURL
     $ch = curl_init("http://www.gamingtop100.net/ip_check/{$row->top_id}/" . get_client_ip());
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     $pagina = curl_exec($ch);
     curl_close($ch);
@@ -61,6 +63,6 @@ if (@fsockopen($top_url, 80, $errno, $errstr, 30)) {
         <?php
     }
 } else {
-    $tops_voted = array_replace($tops_voted, [$row->id => [1, '0000-00-00 00:00:00']]);
+    $tops_voted = array_replace($tops_voted, [$row->id => [0, '0000-00-00 00:00:00']]);
 }
 ?>

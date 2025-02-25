@@ -28,7 +28,7 @@ $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 $can_vote = false;
-$tops_voted = array_replace($tops_voted, [$row->id => [1, '0000-00-00 00:00:00']]);
+$vote_time_local = '0000-00-00 00:00:00';
 
 if ($response === false || $http_status != 200) {
     // Se a API não responder, permitir o voto como fallback
@@ -64,7 +64,12 @@ if ($response === false || $http_status != 200) {
 }
 
 // Atualizar o array de votos corretamente
-$tops_voted[$row->id] = [$can_vote ? 1 : 0, $can_vote ? '0000-00-00 00:00:00' : $next_vote_time];
+// Atualizar `$tops_voted`
+if ($can_vote) {
+    $tops_voted = array_replace($tops_voted, array($row->id => array(0, '0000-00-00 00:00:00'))); 
+} else {
+    $tops_voted = array_replace($tops_voted, array($row->id => array(1, date('Y-m-d H:i:s'))));
+}
 
 // Exibir botão ou contador de tempo restante
 if ($can_vote):

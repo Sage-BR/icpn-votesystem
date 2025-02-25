@@ -18,6 +18,7 @@ class GameBytes {
             curl_setopt($ch, CURLOPT_URL, "https://www.gamebytes.net/api.php?ip=" . $ip . "&username=" . $username);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+			curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             
             $output = curl_exec($ch);

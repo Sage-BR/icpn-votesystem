@@ -9,6 +9,7 @@
 //       Brazillian Developer / WebSite: http://www.icpfree.com.br       \\
 //                 Email & Skype: ivan1507@gmail.com.br                  \\
 //=======================================================================\\
+//				      4TeamBR https://4teambr.com/						 \\
 
 // Faz a requisição para a API.
 $url = "https://top.4teambr.com/api.php?name=" . $row->top_id . "&ip=" . get_client_ip();
