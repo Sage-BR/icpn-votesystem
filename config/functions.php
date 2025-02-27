@@ -175,7 +175,7 @@ function instalar($db_ip, $db_user, $db_pass, $db_name, $db_data, $l2jruss, $adm
 		array(8, 'Private-Server', 'https://private-server.ws', 'private_server_ws.jpg', 'privateserverws.php', 'sem_id', 'sem_token', 0, 0),
 		array(9, 'L2 Votes', 'https://www.l2votes.com', 'l2votes.jpg', 'l2votes.php', 'sem_id', 'sem_token', 1, 0),
 		array(10, 'iTopZ', 'https://itopz.com', 'itopz.png', 'itopz.php', 'sem_id', 'sem_token', 1, 0),
-		array(11, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0),
+		array(11, 'HOP ZONE EU', 'https://hopzone.eu', 'hopzoneu.png', 'hopzoneu.php', 'sem_id', 'sem_token', 1, 0)
 	);
 if (empty($admins)) {
     return respostaDelay($language_72, 4000);
