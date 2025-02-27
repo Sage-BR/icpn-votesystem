@@ -15,6 +15,7 @@
 $url = "https://top.4teambr.com/api.php?name=" . $row->top_id . "&ip=" . get_client_ip();
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_USERAGENT, 'curl/7.68.0 ICPNetwork/2.8');
 $pagina = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
