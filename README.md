@@ -1,6 +1,6 @@
 # VoteSystem - ICPNETWORKS
 
-Tópico oficial na L2jBrasil: https://www.l2jbrasil.com/topic/147136-votesystem-icpnetworks-28-by-sagebr/
+Tópico oficial: https://4teambr.com/index.php?topic=24
 
 ## Como funciona este VoteSystem?
 
